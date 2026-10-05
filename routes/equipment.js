@@ -67,7 +67,7 @@ router.post('/types', async (req, res) => {
   const t = res.locals.t;
   try {
     const { anaKategori, altKategori, tipNotu, aciklama,
-            melEtiketi, melAciklama, bakimPeriyodu, kalibrasyonGerekli,
+            slug, melAciklama, bakimPeriyodu, kalibrasyonGerekli,
             ozellikAd, ozellikBirim, ozellikTip, ozellikZorunlu } = req.body;
 
     const ozellikSablonu = [];
@@ -87,7 +87,7 @@ router.post('/types', async (req, res) => {
 
     await EkipmanTipi.create({
       anaKategori, altKategori: altKategori.trim(), tipNotu: (tipNotu||'').trim(),
-      aciklama: aciklama||'', melEtiketi: (melEtiketi||'').trim(),
+      aciklama: aciklama||'', slug: (slug||'').trim(),
       melAciklama: melAciklama||'', ozellikSablonu,
       bakimPeriyodu: parseInt(bakimPeriyodu)||365,
       kalibrasyonGerekli: !!kalibrasyonGerekli,
@@ -118,7 +118,7 @@ router.put('/types/:id', async (req, res) => {
   const t = res.locals.t;
   try {
     const { anaKategori, altKategori, tipNotu, aciklama,
-            melEtiketi, melAciklama, bakimPeriyodu, kalibrasyonGerekli,
+            slug, melAciklama, bakimPeriyodu, kalibrasyonGerekli,
             ozellikAd, ozellikBirim, ozellikTip, ozellikZorunlu } = req.body;
 
     const ozellikSablonu = [];
@@ -138,7 +138,7 @@ router.put('/types/:id', async (req, res) => {
 
     const tip = await EkipmanTipi.findByIdAndUpdate(req.params.id, {
       anaKategori, altKategori: altKategori.trim(), tipNotu: (tipNotu||'').trim(),
-      aciklama: aciklama||'', melEtiketi: (melEtiketi||'').trim(),
+      aciklama: aciklama||'', slug: (slug||'').trim(),
       melAciklama: melAciklama||'', ozellikSablonu,
       bakimPeriyodu: parseInt(bakimPeriyodu)||365,
       kalibrasyonGerekli: !!kalibrasyonGerekli,

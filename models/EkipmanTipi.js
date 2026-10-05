@@ -15,7 +15,7 @@ const EkipmanTipiSchema = new mongoose.Schema({
   altKategori:      { type: String, required: true, trim: true }, // 'Statik Halat', 'VHF Telsiz'
   tipNotu:          { type: String, default: '', trim: true },    // 'Ø10mm, 50m, EN 1891 Tip A'
   aciklama:         { type: String, default: '' },
-  melEtiketi:       { type: String, default: '', trim: true },    // 'static-rope', 'hand-radio'
+  slug:             { type: String, default: '', trim: true },    // 'static-rope', 'hand-radio'
   melAciklama:      { type: String, default: '' },                // 'Statik Halat'
   ozellikSablonu:   [OzellikAlaniSchema],
   bakimPeriyodu:    { type: Number, default: 365 },               // gün

@@ -46,9 +46,9 @@
     <div class="card-header fw-semibold">MEL</div>
     <div class="card-body row g-3">
       <div class="col-md-6">
-        <label class="form-label"><%= t.equip_type_field_mel %> <small class="text-muted">(slug)</small></label>
-        <input type="text" name="melEtiketi" class="form-control"
-          value="<%= tip ? tip.melEtiketi : '' %>" placeholder="static-rope">
+        <label class="form-label"><%= t.equip_type_slug %></label>
+        <input type="text" name="slug" class="form-control"
+          value="<%= tip ? tip.slug : '' %>" placeholder="static-rope">
       </div>
       <div class="col-md-6">
         <label class="form-label"><%= t.equip_type_field_mel_tr %></label>

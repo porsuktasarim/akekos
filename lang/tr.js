@@ -76,7 +76,7 @@ module.exports = {
   equip_type_field_category:    'Ana Kategori',
   equip_type_field_name:        'Alt Kategori / Tip Adı',
   equip_type_field_note:        'Tip Notu',
-  equip_type_field_mel:         'MEL Etiketi',
+  equip_type_slug:              'Sistem Kodu',
   equip_type_field_mel_tr:      'MEL Açıklaması (TR)',
   equip_type_field_maintenance: 'Bakım Periyodu',
   equip_type_field_calibration: 'Kalibrasyon Gerekli',

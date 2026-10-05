@@ -35,7 +35,7 @@
       <th><%= t.equip_type_field_category %></th>
       <th><%= t.equip_type_field_name %></th>
       <th><%= t.equip_type_field_note %></th>
-      <th><%= t.equip_type_field_mel %></th>
+      <th><%= t.equip_type_slug %></th>
       <th><%= t.equip_type_field_maintenance %></th>
       <th><%= t.active %></th>
       <th></th>
@@ -55,7 +55,7 @@
       </td>
       <td><strong><%= tip.altKategori %></strong></td>
       <td class="text-muted small"><%= tip.tipNotu %></td>
-      <td><code class="small"><%= tip.melEtiketi || '—' %></code></td>
+      <td><code class="small"><%= tip.slug || '—' %></code></td>
       <td><%= tip.bakimPeriyodu %> gün</td>
       <td>
         <% if (tip.aktif) { %>
