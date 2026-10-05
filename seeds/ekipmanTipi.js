@@ -600,6 +600,107 @@ const TIPLER = [
       { ad: 'Marka/Model', tip: 'text' },
       { ad: 'Baskı Tipi', tip: 'select', secenekler: ['Termal', 'İnkjet', 'Lazer'] },
     ] },
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // EL ALETLERİ — Erişim, Kesme/Ayırma, Sabitleme (ek tipler)
+  // ══════════════════════════════════════════════════════════════════════════
+
+  // ── Merdiven & Erişim ──
+  { kat: 'el_aletleri', altKategori: 'Uzatmalı Merdiven (Alüminyum)', melEtiketi: 'extension-ladder',
+    tipNotu: '3-6m teleskopik veya çift kanatlı', bakimPeriyodu: 365,
+    ozellikSablonu: [
+      { ad: 'Uzunluk (açık)', birim: 'm', tip: 'number', zorunlu: true },
+      { ad: 'Max Yük', birim: 'kg', tip: 'number' },
+      { ad: 'Tip', tip: 'select', secenekler: ['Tek Kanatlı', 'Çift Kanatlı / Uzatmalı', 'Teleskopik', 'Mafsallı (Kombine)'] },
+    ] },
+  { kat: 'el_aletleri', altKategori: 'Çatı / A-Tip Merdiven', melEtiketi: 'step-ladder',
+    tipNotu: 'Serbest duran, çift taraflı', bakimPeriyodu: 365,
+    ozellikSablonu: [
+      { ad: 'Yükseklik', birim: 'm', tip: 'number', zorunlu: true },
+      { ad: 'Max Yük', birim: 'kg', tip: 'number' },
+    ] },
+  { kat: 'el_aletleri', altKategori: 'Atlatma Merdiveni / Kanca Merdiveni', melEtiketi: 'hook-ladder',
+    tipNotu: 'Bina cephesi tırmanma / kurtarma merdiveni', bakimPeriyodu: 365,
+    ozellikSablonu: [
+      { ad: 'Uzunluk', birim: 'm', tip: 'number', zorunlu: true },
+    ] },
+
+  // ── Sabitleme / Bağlantı ──
+  { kat: 'el_aletleri', altKategori: 'Çivi Tabancası (Gaz/Barut Çakma)', melEtiketi: 'nail-gun',
+    tipNotu: 'Beton/ahşaba ankraj için', bakimPeriyodu: 365,
+    ozellikSablonu: [
+      { ad: 'Marka/Model', tip: 'text' },
+      { ad: 'Güç Tipi', tip: 'select', secenekler: ['Gaz Kartuşlu', 'Barut', 'Pnömatik', 'Elektrikli'] },
+      { ad: 'Çivi Çapı', birim: 'mm', tip: 'text' },
+    ] },
+  { kat: 'el_aletleri', altKategori: 'Çivi / Ankraj Seti (Manuel)', melEtiketi: 'nail-anchor-set',
+    tipNotu: 'Çelik çivi, dübel, ankraj çubuğu seti', bakimPeriyodu: 730,
+    ozellikSablonu: [
+      { ad: 'İçerik Açıklaması', tip: 'text' },
+    ] },
+  { kat: 'el_aletleri', altKategori: 'Çekiç Seti (Kauçuk / Çelik)', melEtiketi: 'hammer-set',
+    tipNotu: 'Balyoz dahil', bakimPeriyodu: 730,
+    ozellikSablonu: [
+      { ad: 'Ağırlık', birim: 'kg', tip: 'number' },
+      { ad: 'Tip', tip: 'select', secenekler: ['Kauçuk Tokmak', 'Çekiç', 'Balyoz', 'Kama Çekici'] },
+    ] },
+  { kat: 'el_aletleri', altKategori: 'Somun Anahtarı Seti (Kombine / Tornavidalar)', melEtiketi: 'wrench-set',
+    tipNotu: 'Metrik+inç, yıldız/düz tornavida dahil', bakimPeriyodu: 730,
+    ozellikSablonu: [
+      { ad: 'Set İçeriği', tip: 'text' },
+    ] },
+
+  // ── Delme / Kesme / Ayırma ──
+  { kat: 'el_aletleri', altKategori: 'Akülü Matkap / Vidalama Makinesi', melEtiketi: 'cordless-drill',
+    tipNotu: 'SDS-plus / darbe matkap', bakimPeriyodu: 365,
+    ozellikSablonu: [
+      { ad: 'Marka/Model', tip: 'text' },
+      { ad: 'Voltaj', birim: 'V', tip: 'number' },
+      { ad: 'Tip', tip: 'select', secenekler: ['Darbe Matkap', 'SDS-Plus', 'Çekiçli Matkap', 'Vidalama'] },
+    ] },
+  { kat: 'el_aletleri', altKategori: 'El Testeresi / Demir Testeresi (Manuel)', melEtiketi: 'hand-saw',
+    tipNotu: 'Ahşap + metal testere', bakimPeriyodu: 730,
+    ozellikSablonu: [
+      { ad: 'Tip', tip: 'select', secenekler: ['Ahşap Testeresi', 'Demir Testeresi', 'Kombine'] },
+    ] },
+  { kat: 'el_aletleri', altKategori: 'Keski / Kama Seti', melEtiketi: 'chisel-wedge-set',
+    tipNotu: 'Beton ve ahşap keski, çelik kamalar', bakimPeriyodu: 730,
+    ozellikSablonu: [
+      { ad: 'Set İçeriği', tip: 'text' },
+    ] },
+  { kat: 'el_aletleri', altKategori: 'Levye Seti (Çelik Demir)', melEtiketi: 'crowbar-set',
+    tipNotu: 'Düz + eğri levye, farklı boylar', bakimPeriyodu: 730,
+    ozellikSablonu: [
+      { ad: 'En Uzun Levye', birim: 'cm', tip: 'number' },
+    ] },
+  { kat: 'el_aletleri', altKategori: 'Pense / Kerpeten Seti', melEtiketi: 'pliers-set',
+    tipNotu: 'Kablo sıyırıcı dahil', bakimPeriyodu: 730,
+    ozellikSablonu: [
+      { ad: 'Set İçeriği', tip: 'text' },
+    ] },
+  { kat: 'el_aletleri', altKategori: 'Akülü Alıcı Testere (Sabre Saw / Jigsaw)', melEtiketi: 'reciprocating-saw',
+    tipNotu: 'Ahşap+metal bıçak seti', bakimPeriyodu: 365,
+    ozellikSablonu: [
+      { ad: 'Marka/Model', tip: 'text' },
+      { ad: 'Voltaj', birim: 'V', tip: 'number' },
+    ] },
+  { kat: 'el_aletleri', altKategori: 'Boru / Profil Kesici (El)', melEtiketi: 'pipe-cutter',
+    tipNotu: 'Metal boru, ince profil', bakimPeriyodu: 730,
+    ozellikSablonu: [
+      { ad: 'Max Çap', birim: 'mm', tip: 'number' },
+    ] },
+  { kat: 'el_aletleri', altKategori: 'Tel / Kablo Kesici (Pense Tipi)', melEtiketi: 'wire-cutter',
+    tipNotu: 'Demir tel, halat, çelik şerit', bakimPeriyodu: 730,
+    ozellikSablonu: [
+      { ad: 'Max Kesme Çapı', birim: 'mm', tip: 'number' },
+    ] },
+  { kat: 'el_aletleri', altKategori: 'Hidrolik Kesici (Halka/Piston Tipi)', melEtiketi: 'hydraulic-cutter',
+    tipNotu: 'Ağır çelik kesimine alternatif, KAVKAS', bakimPeriyodu: 180, kalibrasyonGerekli: true,
+    ozellikSablonu: [
+      { ad: 'Marka/Model', tip: 'text', zorunlu: true },
+      { ad: 'Kesme Kuvveti', birim: 'kN', tip: 'number' },
+      { ad: 'Max Çap (Çelik)', birim: 'mm', tip: 'number' },
+    ] },
 ];
 
 async function seedEkipmanTipleri() {
