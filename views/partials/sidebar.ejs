@@ -4,12 +4,12 @@
   </div>
   <nav class="flex-grow-1 py-2">
     <div class="nav-section">Genel</div>
-    <a href="/" class="nav-link <%= (typeof baslik !== 'undefined' && baslik === 'Dashboard') ? 'active' : '' %>">
+    <a href="/" class="nav-link">
       <i class="fas fa-home"></i> Dashboard
     </a>
 
     <div class="nav-section">Yönetim</div>
-    <a href="/organizasyon" class="nav-link <%= req.path.startsWith('/organizasyon') ? 'active' : '' %>">
+    <a href="/organizasyon" class="nav-link">
       <i class="fas fa-sitemap"></i> Organizasyon
     </a>
   </nav>
