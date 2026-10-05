@@ -1,0 +1,103 @@
+<%- include('../partials/head') %>
+<%- include('../partials/sidebar') %>
+<div id="main">
+  <%- include('../partials/topbar') %>
+  <div class="content">
+    <%- include('../partials/alerts') %>
+
+    <!-- Aksiyon butonları -->
+    <div class="d-flex flex-wrap gap-2 mb-3">
+      <a href="/organization" class="btn btn-sm btn-outline-secondary">
+        <i class="fas fa-arrow-left me-1"></i><%= t.back %>
+      </a>
+      <a href="/organization/<%= org._id %>/edit" class="btn btn-sm btn-outline-primary">
+        <i class="fas fa-pen me-1"></i><%= t.edit %>
+      </a>
+      <form action="/organization/<%= org._id %>/toggle" method="POST" class="d-inline">
+        <button class="btn btn-sm <%= org.aktif ? 'btn-outline-warning' : 'btn-outline-success' %>">
+          <i class="fas fa-<%= org.aktif ? 'ban' : 'check' %> me-1"></i>
+          <%= org.aktif ? t.deactivate : t.activate %>
+        </button>
+      </form>
+      <% if (org.kademe !== 'ake') { %>
+      <form action="/organization/<%= org._id %>?_method=DELETE" method="POST" class="d-inline"
+            onsubmit="return confirm('<%= t.confirm_delete %>')">
+        <button class="btn btn-sm btn-outline-danger">
+          <i class="fas fa-trash me-1"></i><%= t.delete %>
+        </button>
+      </form>
+      <% } %>
+      <a href="/organization/new?parent=<%= org._id %>&level=<%= org.kademe %>"
+         class="btn btn-sm btn-outline-secondary ms-auto">
+        <i class="fas fa-plus me-1"></i><%= t.add_sub_unit %>
+      </a>
+    </div>
+
+    <div class="row g-3">
+      <!-- Detay kartı -->
+      <div class="col-lg-5">
+        <div class="card p-4 h-100">
+          <h5 class="mb-1">
+            <%= org.ad %>
+            <span class="badge <%= org.aktif ? 'badge-aktif' : 'badge-pasif' %> ms-2">
+              <%= org.aktif ? t.active : t.passive %>
+            </span>
+          </h5>
+          <p class="text-muted small mb-3"><%= KADEME_ETIKET[org.kademe] || org.kademe %></p>
+
+          <dl class="row mb-0 small">
+            <% if (org.slug) { %>
+              <dt class="col-sm-5"><%= t.org_det_slug %></dt>
+              <dd class="col-sm-7"><code class="fs-6"><%= org.slug %></code></dd>
+            <% } %>
+            <% if (org.ust) { %>
+              <dt class="col-sm-5"><%= t.org_det_parent %></dt>
+              <dd class="col-sm-7">
+                <a href="/organization/<%= org.ust._id %>"><%= org.ust.ad %></a>
+              </dd>
+            <% } %>
+            <% if (org.merkezIl) { %>
+              <dt class="col-sm-5"><%= t.org_det_center %></dt>
+              <dd class="col-sm-7"><%= org.merkezIl %></dd>
+            <% } %>
+            <dt class="col-sm-5"><%= t.org_det_phone %></dt>
+            <dd class="col-sm-7"><%= org.telefon || '—' %></dd>
+            <dt class="col-sm-5"><%= t.org_det_email %></dt>
+            <dd class="col-sm-7"><%= org.email || '—' %></dd>
+            <dt class="col-sm-5"><%= t.org_det_address %></dt>
+            <dd class="col-sm-7"><%= org.adres || '—' %></dd>
+            <% if (org.aciklama) { %>
+              <dt class="col-sm-5"><%= t.org_det_desc %></dt>
+              <dd class="col-sm-7"><%= org.aciklama %></dd>
+            <% } %>
+          </dl>
+        </div>
+      </div>
+
+      <!-- Alt birimler -->
+      <div class="col-lg-7">
+        <div class="card p-3 h-100">
+          <h6 class="mb-3"><%= t.org_sub_units %> <span class="badge bg-secondary ms-1"><%= children.length %></span></h6>
+          <% if (!children.length) { %>
+            <p class="text-muted small mb-0"><%= t.org_no_sub %></p>
+          <% } else { %>
+            <ul class="list-group list-group-flush">
+              <% children.forEach(c => { %>
+                <li class="list-group-item d-flex align-items-center gap-2 px-0">
+                  <span class="badge bg-light text-dark border small"><%= KADEME_ETIKET[c.kademe] || c.kademe %></span>
+                  <a href="/organization/<%= c._id %>" class="fw-semibold text-decoration-none"><%= c.ad %></a>
+                  <% if (c.slug) { %><code class="text-muted small"><%= c.slug %></code><% } %>
+                  <span class="badge <%= c.aktif ? 'badge-aktif' : 'badge-pasif' %> ms-auto">
+                    <%= c.aktif ? t.active : t.passive %>
+                  </span>
+                </li>
+              <% }) %>
+            </ul>
+          <% } %>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<%- include('../partials/foot') %>

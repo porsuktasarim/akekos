@@ -11,6 +11,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 RUN mkdir -p /data/db /var/log/mongodb /var/log/supervisor
 
+VOLUME ["/data/db"]
+
 WORKDIR /app
 
 COPY package*.json ./

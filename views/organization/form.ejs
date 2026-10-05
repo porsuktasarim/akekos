@@ -1,0 +1,183 @@
+<%- include('../partials/head') %>
+<%- include('../partials/sidebar') %>
+<div id="main">
+  <%- include('../partials/topbar') %>
+  <div class="content">
+    <%- include('../partials/alerts') %>
+
+    <div class="card p-4" style="max-width:680px">
+      <h5 class="mb-4"><%= baslik %></h5>
+
+      <form action="<%= org ? '/organization/' + org._id + '?_method=PUT' : '/organization' %>" method="POST" id="orgForm">
+
+        <div class="row g-3">
+
+          <!-- Kademe -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold"><%= t.org_field_level %> <span class="text-danger">*</span></label>
+            <% if (org) { %>
+              <input type="text" class="form-control" readonly value="<%= KADEME_ETIKET[org.kademe] %>">
+              <small class="text-muted"><%= t.org_field_level_note %></small>
+            <% } else { %>
+              <select name="kademe" id="levelSelect" class="form-select" required>
+                <option value=""><%= t.select %></option>
+                <% KADEME.forEach(k => { %>
+                  <option value="<%= k %>" <%= selectedLevel === k ? 'selected' : '' %>><%= KADEME_ETIKET[k] %></option>
+                <% }) %>
+              </select>
+            <% } %>
+          </div>
+
+          <!-- Üst birim -->
+          <div class="col-md-6" id="parentRow">
+            <label class="form-label fw-semibold">
+              <%= t.org_field_parent %>
+              <% if (selectedLevel && selectedLevel !== 'bakanlik') { %><span class="text-danger">*</span><% } %>
+            </label>
+            <select name="ust" id="parentSelect" class="form-select"
+              <%= (selectedLevel && selectedLevel !== 'bakanlik') ? 'required' : '' %>>
+              <option value=""><%= t.select %></option>
+              <% parents.forEach(u => { %>
+                <option value="<%= u._id %>"
+                  <%= (selectedParent && selectedParent.toString() === u._id.toString()) ? 'selected' : '' %>>
+                  <%= u.ad %><%= u.merkezIl ? ' (' + u.merkezIl + ')' : '' %><%= u.slug ? ' [' + u.slug + ']' : '' %>
+                </option>
+              <% }) %>
+            </select>
+          </div>
+
+          <!-- Ad -->
+          <div class="col-12">
+            <label class="form-label fw-semibold"><%= t.org_field_name %> <span class="text-danger">*</span></label>
+            <input type="text" name="ad" class="form-control" required
+                   value="<%= org ? org.ad : '' %>" placeholder="<%= t.org_field_name_ph %>">
+          </div>
+
+          <!-- Merkez İl -->
+          <%
+            const centerRequired = ['il_bolge','ake','alt_birim'].includes(selectedLevel || (org && org.kademe));
+            const centerSelected = (org && org.merkezIl) || '';
+          %>
+          <div class="col-md-6" id="centerIlRow">
+            <label class="form-label fw-semibold">
+              <%= t.org_field_center_il %>
+              <% if (centerRequired) { %><span class="text-danger">*</span><% } %>
+            </label>
+            <select name="merkezIl" id="centerIlSelect" class="form-select"
+              <%= centerRequired ? 'required' : '' %>>
+              <option value=""><%= t.select %></option>
+              <% Object.keys(IL_KODLARI).sort().forEach(il => { %>
+                <option value="<%= il %>" <%= centerSelected === il ? 'selected' : '' %>><%= il %></option>
+              <% }) %>
+            </select>
+            <small class="text-muted"><%= t.org_field_center_note %></small>
+          </div>
+
+          <!-- Telefon -->
+          <div class="col-md-6">
+            <label class="form-label"><%= t.org_field_phone %></label>
+            <input type="text" name="telefon" class="form-control"
+                   value="<%= org ? (org.telefon||'') : '' %>">
+          </div>
+
+          <!-- E-posta -->
+          <div class="col-md-6">
+            <label class="form-label"><%= t.org_field_email %></label>
+            <input type="email" name="email" class="form-control"
+                   value="<%= org ? (org.email||'') : '' %>">
+          </div>
+
+          <!-- Adres -->
+          <div class="col-12">
+            <label class="form-label"><%= t.org_field_address %></label>
+            <textarea name="adres" class="form-control" rows="2"><%= org ? (org.adres||'') : '' %></textarea>
+          </div>
+
+          <!-- Açıklama -->
+          <div class="col-12">
+            <label class="form-label"><%= t.org_field_desc %></label>
+            <textarea name="aciklama" class="form-control" rows="2"><%= org ? (org.aciklama||'') : '' %></textarea>
+          </div>
+
+          <!-- Slug (düzenlemede) -->
+          <% if (org && org.slug) { %>
+          <div class="col-12">
+            <label class="form-label"><%= t.org_field_slug %></label>
+            <input type="text" class="form-control font-monospace" readonly value="<%= org.slug %>">
+            <small class="text-muted"><%= t.org_field_slug_note %></small>
+          </div>
+          <% } %>
+
+        </div>
+
+        <div class="d-flex gap-2 mt-4">
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save me-1"></i><%= org ? t.update : t.save %>
+          </button>
+          <a href="<%= org ? '/organization/' + org._id : '/organization' %>" class="btn btn-outline-secondary"><%= t.cancel %></a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<%- include('../partials/foot') %>
+
+<script>
+const levelSelect    = document.getElementById('levelSelect');
+const parentSelect   = document.getElementById('parentSelect');
+const centerIlSelect = document.getElementById('centerIlSelect');
+
+const centerRequiredLevels = ['il_bolge', 'ake', 'alt_birim'];
+const previousParent = '<%= selectedParent || "" %>';
+
+function updateCenterIl(level) {
+  if (!centerIlSelect) return;
+  const required = centerRequiredLevels.includes(level);
+  centerIlSelect.required = required;
+  const label  = centerIlSelect.closest('.col-md-6').querySelector('label');
+  const star   = label.querySelector('.required-star');
+  if (required && !star) {
+    const s = document.createElement('span');
+    s.className   = 'text-danger required-star';
+    s.textContent = ' *';
+    label.appendChild(s);
+  } else if (!required && star) {
+    star.remove();
+  }
+}
+
+if (levelSelect) {
+  levelSelect.addEventListener('change', async function() {
+    const level = this.value;
+
+    updateCenterIl(level);
+
+    if (!level || level === 'bakanlik') {
+      parentSelect.innerHTML = '<option value=""><%= t.none %></option>';
+      parentSelect.required  = false;
+      return;
+    }
+
+    parentSelect.innerHTML = '<option value=""><%= t.loading %></option>';
+    parentSelect.required  = true;
+
+    try {
+      const r    = await fetch('/organization/api/parents/' + level);
+      const list = await r.json();
+      let opts   = '<option value=""><%= t.select %></option>';
+      list.forEach(u => {
+        let label = u.ad;
+        if (u.merkezIl) label += ' (' + u.merkezIl + ')';
+        if (u.slug)     label += ' [' + u.slug + ']';
+        const sel = previousParent && previousParent === u._id ? ' selected' : '';
+        opts += `<option value="${u._id}"${sel}>${label}</option>`;
+      });
+      parentSelect.innerHTML = opts;
+    } catch(e) {
+      parentSelect.innerHTML = '<option value=""><%= t.retry %></option>';
+    }
+  });
+
+  if (levelSelect.value) updateCenterIl(levelSelect.value);
+}
+</script>

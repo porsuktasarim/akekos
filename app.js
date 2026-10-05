@@ -1,11 +1,12 @@
 require('dotenv').config();
-const express      = require('express');
-const path         = require('path');
-const session      = require('express-session');
-const flash        = require('connect-flash');
+const express        = require('express');
+const path           = require('path');
+const session        = require('express-session');
+const flash          = require('connect-flash');
 const methodOverride = require('method-override');
 
 const connectDB = require('./config/db');
+const t         = require('./lang/tr');
 
 const app = express();
 
@@ -21,7 +22,7 @@ app.use(express.urlencoded({ extended: true, limit: '20mb' }));
 app.use(express.json({ limit: '20mb' }));
 app.use(methodOverride('_method'));
 
-// Session — memory store (MongoStore opsiyonel, sonra eklenecek)
+// Session — memory store
 app.use(session({
   secret: process.env.SESSION_SECRET || 'akekos_dev_secret',
   resave: false,
@@ -36,11 +37,12 @@ app.use(flash());
 
 // Locals
 app.use((req, res, next) => {
-  res.locals.hata    = req.flash('hata');
+  res.locals.hata     = req.flash('hata');
   res.locals.basarili = req.flash('basarili');
-  res.locals.user    = req.session.user || null;
-  res.locals.appName = 'AKEKOS';
-  res.locals.yil     = new Date().getFullYear();
+  res.locals.user     = req.session.user || null;
+  res.locals.appName  = t.app_name;
+  res.locals.yil      = new Date().getFullYear();
+  res.locals.t        = t;   // ← dil dosyası tüm view'larda erişilebilir
   next();
 });
 
@@ -56,7 +58,7 @@ app.use((req, res, next) => {
 // Routes
 app.use('/',             require('./routes/auth'));
 app.use('/',             require('./routes/dashboard'));
-app.use('/organizasyon', require('./routes/organizasyon'));
+app.use('/organization', require('./routes/organization'));
 
 // 404
 app.use((req, res) => {

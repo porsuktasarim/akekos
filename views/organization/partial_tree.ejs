@@ -1,0 +1,50 @@
+<% nodes.forEach(function(node) { %>
+  <li style="padding-left: <%= depth * 20 %>px;" class="org-node py-1 border-bottom border-light">
+    <div class="d-flex align-items-center gap-2">
+      <%
+        const icons = {
+          bakanlik:  'fa-landmark',
+          tasra:     'fa-building',
+          il_bolge:  'fa-map-marker-alt',
+          ake:       'fa-shield-halved',
+          alt_birim: 'fa-layer-group',
+        };
+        const colors = {
+          bakanlik:  'text-danger',
+          tasra:     'text-warning',
+          il_bolge:  'text-info',
+          ake:       'text-primary',
+          alt_birim: 'text-secondary',
+        };
+      %>
+      <i class="fas <%= icons[node.kademe] || 'fa-circle' %> <%= colors[node.kademe] || '' %> fa-fw"></i>
+      <a href="/organization/<%= node._id %>" class="fw-semibold text-decoration-none">
+        <%= node.ad %>
+      </a>
+      <% if (node.slug) { %>
+        <code class="small text-muted"><%= node.slug %></code>
+      <% } %>
+      <span class="badge <%= node.aktif ? 'badge-aktif' : 'badge-pasif' %> ms-1">
+        <%= node.aktif ? t.active : t.passive %>
+      </span>
+      <span class="badge bg-light text-dark border ms-1 small">
+        <%= KADEME_ETIKET[node.kademe] || node.kademe %>
+      </span>
+      <div class="ms-auto d-flex gap-1">
+        <a href="/organization/new?parent=<%= node._id %>&level=<%= node.kademe %>"
+           class="btn btn-xs btn-outline-secondary" title="<%= t.add_sub_unit %>">
+          <i class="fas fa-plus fa-xs"></i>
+        </a>
+        <a href="/organization/<%= node._id %>/edit"
+           class="btn btn-xs btn-outline-secondary" title="<%= t.edit %>">
+          <i class="fas fa-pen fa-xs"></i>
+        </a>
+      </div>
+    </div>
+    <% if (node.children && node.children.length) { %>
+      <ul class="list-unstyled mb-0 mt-1">
+        <%- include('./partial_tree', { nodes: node.children, depth: depth + 1 }) %>
+      </ul>
+    <% } %>
+  </li>
+<% }) %>
