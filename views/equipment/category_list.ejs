@@ -1,0 +1,24 @@
+<%- include('../partials/header', { title: t.equip_cat_title }) %>
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h4><i class="fas fa-layer-group me-2"></i><%= t.equip_cat_title %></h4>
+</div>
+
+<% if (locals.hata && hata.length) { %><div class="alert alert-danger"><%= hata[0] %></div><% } %>
+
+<div class="row g-3">
+<% kategoriler.forEach(k => { %>
+  <div class="col-md-4 col-lg-3">
+    <div class="card h-100 border-0 shadow-sm">
+      <div class="card-body text-center py-4">
+        <i class="fas <%= k.ikon %> fa-2x text-primary mb-3"></i>
+        <h6 class="mb-1"><%= k.ad %></h6>
+        <p class="text-muted small mb-3"><%= k.aciklama %></p>
+        <a href="/equipment/types?kategori=<%= k._id %>" class="btn btn-sm btn-outline-primary">
+          <%= t.equip_show_types %>
+        </a>
+      </div>
+    </div>
+  </div>
+<% }) %>
+</div>
+<%- include('../partials/footer') %>

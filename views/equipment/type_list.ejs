@@ -1,0 +1,83 @@
+<%- include('../partials/header', { title: t.equip_type_title }) %>
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4><i class="fas fa-tags me-2"></i><%= t.equip_type_title %></h4>
+  <a href="/equipment/types/new" class="btn btn-primary btn-sm">
+    <i class="fas fa-plus me-1"></i><%= t.new_record %>
+  </a>
+</div>
+
+<% if (locals.hata && hata.length) { %><div class="alert alert-danger"><%= hata[0] %></div><% } %>
+<% if (locals.basarili && basarili.length) { %><div class="alert alert-success"><%- basarili[0] %></div><% } %>
+
+<!-- Filtre -->
+<form class="row g-2 mb-3" method="get">
+  <div class="col-auto">
+    <select name="kategori" class="form-select form-select-sm" onchange="this.form.submit()">
+      <option value="">— <%= t.equip_cat_title %> —</option>
+      <% kategoriler.forEach(k => { %>
+        <option value="<%= k._id %>" <%- filtre.kategori === String(k._id) ? 'selected' : '' %>><%= k.ad %></option>
+      <% }) %>
+    </select>
+  </div>
+  <div class="col-auto">
+    <select name="aktif" class="form-select form-select-sm" onchange="this.form.submit()">
+      <option value="">— <%= t.active %> / <%= t.passive %> —</option>
+      <option value="1" <%- filtre.aktif === '1' ? 'selected' : '' %>><%= t.active %></option>
+      <option value="0" <%- filtre.aktif === '0' ? 'selected' : '' %>><%= t.passive %></option>
+    </select>
+  </div>
+</form>
+
+<div class="table-responsive">
+<table class="table table-hover align-middle">
+  <thead class="table-light">
+    <tr>
+      <th><%= t.equip_type_field_category %></th>
+      <th><%= t.equip_type_field_name %></th>
+      <th><%= t.equip_type_field_note %></th>
+      <th><%= t.equip_type_field_mel %></th>
+      <th><%= t.equip_type_field_maintenance %></th>
+      <th><%= t.active %></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+  <% if (!tipler.length) { %>
+    <tr><td colspan="7" class="text-muted text-center py-4"><%= t.no_record %></td></tr>
+  <% } %>
+  <% tipler.forEach(tip => { %>
+    <tr>
+      <td>
+        <% if (tip.anaKategori) { %>
+          <i class="fas <%= tip.anaKategori.ikon %> me-1 text-muted"></i>
+          <%= tip.anaKategori.ad %>
+        <% } %>
+      </td>
+      <td><strong><%= tip.altKategori %></strong></td>
+      <td class="text-muted small"><%= tip.tipNotu %></td>
+      <td><code class="small"><%= tip.melEtiketi || '—' %></code></td>
+      <td><%= tip.bakimPeriyodu %> gün</td>
+      <td>
+        <% if (tip.aktif) { %>
+          <span class="badge bg-success-subtle text-success"><%= t.active %></span>
+        <% } else { %>
+          <span class="badge bg-secondary-subtle text-secondary"><%= t.passive %></span>
+        <% } %>
+      </td>
+      <td class="text-end">
+        <a href="/equipment/types/<%= tip._id %>/edit" class="btn btn-sm btn-outline-secondary me-1"><%= t.edit %></a>
+        <form method="post" action="/equipment/types/<%= tip._id %>/toggle" class="d-inline">
+          <button class="btn btn-sm <%- tip.aktif ? 'btn-outline-warning' : 'btn-outline-success' %>">
+            <%= tip.aktif ? t.deactivate : t.activate %>
+          </button>
+        </form>
+        <a href="/equipment/new?tip=<%= tip._id %>" class="btn btn-sm btn-primary ms-1">
+          <i class="fas fa-plus"></i>
+        </a>
+      </td>
+    </tr>
+  <% }) %>
+  </tbody>
+</table>
+</div>
+<%- include('../partials/footer') %>

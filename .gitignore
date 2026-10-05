@@ -1,9 +1,0 @@
-node_modules/
-.env
-uploads/fotograflar/*
-uploads/belgeler/*
-uploads/temp/*
-!uploads/fotograflar/.gitkeep
-!uploads/belgeler/.gitkeep
-!uploads/temp/.gitkeep
-*.log

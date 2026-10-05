@@ -1,0 +1,158 @@
+<%- include('../partials/header', { title: tip ? t.edit + ': ' + tip.altKategori : t.equip_type_new }) %>
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4><i class="fas fa-tag me-2"></i><%= tip ? t.edit + ': ' + tip.altKategori : t.equip_type_new %></h4>
+  <a href="/equipment/types" class="btn btn-sm btn-outline-secondary"><%= t.back %></a>
+</div>
+
+<% if (locals.hata && hata.length) { %><div class="alert alert-danger"><%= hata[0] %></div><% } %>
+
+<form method="post"
+  action="<%= tip ? '/equipment/types/' + tip._id + '?_method=PUT' : '/equipment/types' %>">
+  <% if (tip) { %><input type="hidden" name="_method" value="PUT"><% } %>
+
+  <div class="card shadow-sm mb-3">
+    <div class="card-header fw-semibold"><%= t.equip_type_section_basic %></div>
+    <div class="card-body row g-3">
+      <div class="col-md-6">
+        <label class="form-label"><%= t.equip_type_field_category %> <span class="text-danger">*</span></label>
+        <select name="anaKategori" class="form-select" required>
+          <option value=""><%= t.select %></option>
+          <% kategoriler.forEach(k => { %>
+            <option value="<%= k._id %>"
+              <%- String(tip ? tip.anaKategori : seciliKategori) === String(k._id) ? 'selected' : '' %>>
+              <%= k.ad %>
+            </option>
+          <% }) %>
+        </select>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label"><%= t.equip_type_field_name %> <span class="text-danger">*</span></label>
+        <input type="text" name="altKategori" class="form-control" required
+          value="<%= tip ? tip.altKategori : '' %>" placeholder="Statik Halat">
+      </div>
+      <div class="col-md-12">
+        <label class="form-label"><%= t.equip_type_field_note %></label>
+        <input type="text" name="tipNotu" class="form-control"
+          value="<%= tip ? tip.tipNotu : '' %>" placeholder="Ø10mm, 50m, EN 1891 Tip A">
+      </div>
+      <div class="col-12">
+        <label class="form-label"><%= t.org_field_desc %></label>
+        <textarea name="aciklama" class="form-control" rows="2"><%= tip ? tip.aciklama : '' %></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm mb-3">
+    <div class="card-header fw-semibold">MEL</div>
+    <div class="card-body row g-3">
+      <div class="col-md-6">
+        <label class="form-label"><%= t.equip_type_field_mel %> <small class="text-muted">(slug)</small></label>
+        <input type="text" name="melEtiketi" class="form-control"
+          value="<%= tip ? tip.melEtiketi : '' %>" placeholder="static-rope">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label"><%= t.equip_type_field_mel_tr %></label>
+        <input type="text" name="melAciklama" class="form-control"
+          value="<%= tip ? tip.melAciklama : '' %>" placeholder="Statik Halat">
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm mb-3">
+    <div class="card-header fw-semibold"><%= t.equip_type_section_maintenance %></div>
+    <div class="card-body row g-3">
+      <div class="col-md-4">
+        <label class="form-label"><%= t.equip_type_field_maintenance %> (gün)</label>
+        <input type="number" name="bakimPeriyodu" class="form-control" min="1"
+          value="<%= tip ? tip.bakimPeriyodu : 365 %>">
+      </div>
+      <div class="col-md-4 d-flex align-items-end">
+        <div class="form-check">
+          <input type="checkbox" name="kalibrasyonGerekli" value="1" class="form-check-input"
+            id="kalibrasyonGerekli" <%- tip && tip.kalibrasyonGerekli ? 'checked' : '' %>>
+          <label class="form-check-label" for="kalibrasyonGerekli"><%= t.equip_type_field_calibration %></label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm mb-4">
+    <div class="card-header fw-semibold d-flex justify-content-between align-items-center">
+      <%= t.equip_type_section_fields %>
+      <button type="button" class="btn btn-sm btn-outline-primary" id="ozellikEkle">
+        <i class="fas fa-plus me-1"></i><%= t.equip_type_add_field %>
+      </button>
+    </div>
+    <div class="card-body" id="ozellikListesi">
+      <% (tip ? tip.ozellikSablonu : []).forEach((o, i) => { %>
+      <div class="row g-2 mb-2 ozellik-satir">
+        <div class="col-md-4">
+          <input type="text" name="ozellikAd" class="form-control form-control-sm"
+            placeholder="<%= t.equip_field_name %>" value="<%= o.ad %>">
+        </div>
+        <div class="col-md-2">
+          <input type="text" name="ozellikBirim" class="form-control form-control-sm"
+            placeholder="<%= t.equip_field_unit %>" value="<%= o.birim %>">
+        </div>
+        <div class="col-md-3">
+          <select name="ozellikTip" class="form-select form-select-sm">
+            <% ['text','number','boolean','date'].forEach(tp => { %>
+              <option value="<%= tp %>" <%- o.tip === tp ? 'selected' : '' %>><%= tp %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="col-md-2 d-flex align-items-center">
+          <div class="form-check">
+            <input type="checkbox" name="ozellikZorunlu" value="1" class="form-check-input"
+              <%- o.zorunlu ? 'checked' : '' %>>
+            <label class="form-check-label small"><%= t.equip_field_required %></label>
+          </div>
+        </div>
+        <div class="col-md-1">
+          <button type="button" class="btn btn-sm btn-outline-danger ozellik-sil">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+      <% }) %>
+    </div>
+  </div>
+
+  <div class="d-flex gap-2">
+    <button type="submit" class="btn btn-primary"><%= tip ? t.update : t.save %></button>
+    <a href="/equipment/types" class="btn btn-outline-secondary"><%= t.cancel %></a>
+  </div>
+</form>
+
+<script>
+document.getElementById('ozellikEkle').addEventListener('click', () => {
+  const list = document.getElementById('ozellikListesi');
+  const row  = document.createElement('div');
+  row.className = 'row g-2 mb-2 ozellik-satir';
+  row.innerHTML = `
+    <div class="col-md-4"><input type="text" name="ozellikAd" class="form-control form-control-sm" placeholder="<%= t.equip_field_name %>"></div>
+    <div class="col-md-2"><input type="text" name="ozellikBirim" class="form-control form-control-sm" placeholder="<%= t.equip_field_unit %>"></div>
+    <div class="col-md-3">
+      <select name="ozellikTip" class="form-select form-select-sm">
+        <option value="text">text</option>
+        <option value="number">number</option>
+        <option value="boolean">boolean</option>
+        <option value="date">date</option>
+      </select>
+    </div>
+    <div class="col-md-2 d-flex align-items-center">
+      <div class="form-check">
+        <input type="checkbox" name="ozellikZorunlu" value="1" class="form-check-input">
+        <label class="form-check-label small"><%= t.equip_field_required %></label>
+      </div>
+    </div>
+    <div class="col-md-1">
+      <button type="button" class="btn btn-sm btn-outline-danger ozellik-sil"><i class="fas fa-times"></i></button>
+    </div>`;
+  list.appendChild(row);
+});
+document.addEventListener('click', e => {
+  if (e.target.closest('.ozellik-sil')) e.target.closest('.ozellik-satir').remove();
+});
+</script>
+<%- include('../partials/footer') %>

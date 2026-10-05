@@ -1,0 +1,210 @@
+<%- include('../partials/header', { title: demirbase.barkod }) %>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4><i class="fas fa-box me-2"></i><%= demirbase.barkod %></h4>
+  <div class="d-flex gap-2">
+    <a href="/equipment/<%= demirbase._id %>/edit" class="btn btn-sm btn-outline-primary">
+      <i class="fas fa-edit me-1"></i><%= t.edit %>
+    </a>
+    <a href="/equipment" class="btn btn-sm btn-outline-secondary"><%= t.back %></a>
+  </div>
+</div>
+
+<% if (locals.hata && hata.length) { %><div class="alert alert-danger"><%= hata[0] %></div><% } %>
+<% if (locals.basarili && basarili.length) { %><div class="alert alert-success"><%- basarili[0] %></div><% } %>
+
+<%
+  const durumRenk = {
+    aktif: 'success', bakimda: 'warning', hurda: 'danger',
+    kayip: 'dark', gorevde: 'info'
+  };
+%>
+
+<div class="row g-3">
+
+  <!-- Sol sütun: temel bilgiler -->
+  <div class="col-lg-8">
+
+    <!-- Kimlik -->
+    <div class="card shadow-sm mb-3">
+      <div class="card-header fw-semibold"><%= t.equip_section_basic %></div>
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-4"><%= t.equip_field_barcode %></dt>
+          <dd class="col-sm-8"><code><%= demirbase.barkod %></code></dd>
+
+          <% if (demirbase.seriNo) { %>
+          <dt class="col-sm-4"><%= t.equip_field_serial %></dt>
+          <dd class="col-sm-8"><%= demirbase.seriNo %></dd>
+          <% } %>
+
+          <dt class="col-sm-4"><%= t.equip_type_field_category %></dt>
+          <dd class="col-sm-8">
+            <% if (demirbase.ekipmanTipi && demirbase.ekipmanTipi.anaKategori) { %>
+              <i class="fas <%= demirbase.ekipmanTipi.anaKategori.ikon %> me-1 text-muted"></i>
+              <%= demirbase.ekipmanTipi.anaKategori.ad %>
+            <% } else { %>—<% } %>
+          </dd>
+
+          <dt class="col-sm-4"><%= t.equip_type_field_name %></dt>
+          <dd class="col-sm-8">
+            <% if (demirbase.ekipmanTipi) { %>
+              <strong><%= demirbase.ekipmanTipi.altKategori %></strong>
+              <% if (demirbase.ekipmanTipi.tipNotu) { %>
+                <span class="text-muted small"> — <%= demirbase.ekipmanTipi.tipNotu %></span>
+              <% } %>
+            <% } else { %>—<% } %>
+          </dd>
+
+          <dt class="col-sm-4"><%= t.equip_field_brand_model %></dt>
+          <dd class="col-sm-8"><%= [demirbase.marka, demirbase.model].filter(Boolean).join(' ') || '—' %></dd>
+
+          <dt class="col-sm-4"><%= t.equip_field_status %></dt>
+          <dd class="col-sm-8">
+            <span class="badge bg-<%= durumRenk[demirbase.durum] || 'secondary' %>-subtle text-<%= durumRenk[demirbase.durum] || 'secondary' %>">
+              <%= t['equip_status_' + demirbase.durum] || demirbase.durum %>
+            </span>
+            <!-- Hızlı durum değiştir -->
+            <form method="post" action="/equipment/<%= demirbase._id %>/status" class="d-inline ms-2">
+              <select name="durum" class="form-select form-select-sm d-inline-block w-auto" onchange="this.form.submit()">
+                <option value="">— <%= t.equip_change_status %> —</option>
+                <% ['aktif','bakimda','hurda','kayip','gorevde'].forEach(d => { %>
+                  <% if (d !== demirbase.durum) { %>
+                    <option value="<%= d %>"><%= t['equip_status_' + d] || d %></option>
+                  <% } %>
+                <% }) %>
+              </select>
+            </form>
+          </dd>
+        </dl>
+      </div>
+    </div>
+
+    <!-- Konum -->
+    <div class="card shadow-sm mb-3">
+      <div class="card-header fw-semibold"><%= t.equip_section_location %></div>
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-4"><%= t.org_title %></dt>
+          <dd class="col-sm-8"><%= demirbase.orgId ? demirbase.orgId.ad : '—' %></dd>
+
+          <dt class="col-sm-4"><%= t.equip_field_location_type %></dt>
+          <dd class="col-sm-8">
+            <%= demirbase.konumTip === 'depo' ? t.equip_location_depo : t.equip_location_grup %>
+          </dd>
+
+          <dt class="col-sm-4">MEL</dt>
+          <dd class="col-sm-8">
+            <% if (demirbase.melUygun) { %>
+              <span class="badge bg-success-subtle text-success"><i class="fas fa-check me-1"></i><%= t.equip_field_mel_label %></span>
+            <% } else { %>
+              <span class="text-muted">—</span>
+            <% } %>
+          </dd>
+        </dl>
+      </div>
+    </div>
+
+    <!-- Dinamik Özellikler -->
+    <% if (demirbase.ozellikler && demirbase.ozellikler.length) { %>
+    <div class="card shadow-sm mb-3">
+      <div class="card-header fw-semibold"><%= t.equip_section_props %></div>
+      <div class="card-body">
+        <dl class="row mb-0">
+          <% demirbase.ozellikler.forEach(o => { %>
+            <dt class="col-sm-4"><%= o.ad %><% if (o.birim) { %> <small class="text-muted">(<%= o.birim %>)</small><% } %></dt>
+            <dd class="col-sm-8"><%= o.deger || '—' %></dd>
+          <% }) %>
+        </dl>
+      </div>
+    </div>
+    <% } %>
+
+    <!-- Notlar -->
+    <% if (demirbase.notlar) { %>
+    <div class="card shadow-sm mb-3">
+      <div class="card-header fw-semibold"><%= t.equip_field_notes %></div>
+      <div class="card-body"><p class="mb-0"><%= demirbase.notlar %></p></div>
+    </div>
+    <% } %>
+
+  </div>
+
+  <!-- Sağ sütun: satın alım ve bakım -->
+  <div class="col-lg-4">
+
+    <!-- Satın Alım -->
+    <div class="card shadow-sm mb-3">
+      <div class="card-header fw-semibold"><%= t.equip_section_purchase %></div>
+      <div class="card-body">
+        <dl class="row mb-0">
+          <% if (demirbase.satinaAlimTarihi) { %>
+          <dt class="col-6 text-muted small"><%= t.equip_field_purchase_date %></dt>
+          <dd class="col-6 small"><%= new Date(demirbase.satinaAlimTarihi).toLocaleDateString('tr-TR') %></dd>
+          <% } %>
+          <% if (demirbase.garantiBitis) { %>
+          <dt class="col-6 text-muted small"><%= t.equip_field_warranty %></dt>
+          <dd class="col-6 small"><%= new Date(demirbase.garantiBitis).toLocaleDateString('tr-TR') %></dd>
+          <% } %>
+          <% if (demirbase.fiyat && demirbase.fiyat.tutar) { %>
+          <dt class="col-6 text-muted small"><%= t.equip_field_price %></dt>
+          <dd class="col-6 small">
+            <%= demirbase.fiyat.tutar.toLocaleString('tr-TR') %> <%= demirbase.fiyat.birim %>
+            <% if (demirbase.fiyat.tutarTL && demirbase.fiyat.birim !== 'TRY') { %>
+              <br><small class="text-muted">≈ <%= demirbase.fiyat.tutarTL.toLocaleString('tr-TR') %> ₺</small>
+            <% } %>
+          </dd>
+          <% } %>
+          <% if (demirbase.fiyat && demirbase.fiyat.faturaNo) { %>
+          <dt class="col-6 text-muted small"><%= t.equip_field_invoice_no %></dt>
+          <dd class="col-6 small"><%= demirbase.fiyat.faturaNo %></dd>
+          <% } %>
+        </dl>
+      </div>
+    </div>
+
+    <!-- Bakım -->
+    <div class="card shadow-sm mb-3">
+      <div class="card-header fw-semibold"><%= t.equip_section_maintenance %></div>
+      <div class="card-body">
+        <dl class="row mb-0">
+          <% if (demirbase.sonBakimTarihi) { %>
+          <dt class="col-6 text-muted small"><%= t.equip_field_last_maintenance %></dt>
+          <dd class="col-6 small"><%= new Date(demirbase.sonBakimTarihi).toLocaleDateString('tr-TR') %></dd>
+          <% } %>
+          <% if (demirbase.sonraBakimTarihi) { %>
+          <dt class="col-6 text-muted small"><%= t.equip_field_next_maintenance %></dt>
+          <dd class="col-6 small">
+            <%
+              const bakimKalan = Math.ceil((new Date(demirbase.sonraBakimTarihi) - new Date()) / 86400000);
+            %>
+            <%= new Date(demirbase.sonraBakimTarihi).toLocaleDateString('tr-TR') %>
+            <% if (bakimKalan < 0) { %>
+              <span class="badge bg-danger-subtle text-danger ms-1"><%= Math.abs(bakimKalan) %> gün geçti</span>
+            <% } else if (bakimKalan <= 30) { %>
+              <span class="badge bg-warning-subtle text-warning ms-1"><%= bakimKalan %> gün kaldı</span>
+            <% } else { %>
+              <span class="badge bg-success-subtle text-success ms-1"><%= bakimKalan %> gün</span>
+            <% } %>
+          </dd>
+          <% } %>
+        </dl>
+      </div>
+    </div>
+
+    <!-- Meta -->
+    <div class="card shadow-sm mb-3">
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-6 text-muted small">Oluşturulma</dt>
+          <dd class="col-6 small"><%= new Date(demirbase.createdAt).toLocaleDateString('tr-TR') %></dd>
+          <dt class="col-6 text-muted small">Güncelleme</dt>
+          <dd class="col-6 small"><%= new Date(demirbase.updatedAt).toLocaleDateString('tr-TR') %></dd>
+        </dl>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

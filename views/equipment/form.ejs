@@ -1,0 +1,270 @@
+<%- include('../partials/header', { title: demirbase ? t.edit + ': ' + demirbase.barkod : t.new_record }) %>
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4>
+    <i class="fas fa-box-open me-2"></i>
+    <%= demirbase ? t.edit + ': ' + demirbase.barkod : t.new_record %>
+  </h4>
+  <a href="/equipment" class="btn btn-sm btn-outline-secondary"><%= t.back %></a>
+</div>
+
+<% if (locals.hata && hata.length) { %><div class="alert alert-danger"><%= hata[0] %></div><% } %>
+
+<form method="post"
+  action="<%= demirbase ? '/equipment/' + demirbase._id + '?_method=PUT' : '/equipment' %>">
+  <% if (demirbase) { %><input type="hidden" name="_method" value="PUT"><% } %>
+
+  <!-- Temel Bilgiler -->
+  <div class="card shadow-sm mb-3">
+    <div class="card-header fw-semibold"><%= t.equip_section_basic %></div>
+    <div class="card-body row g-3">
+
+      <div class="col-md-4">
+        <label class="form-label"><%= t.equip_field_barcode %></label>
+        <div class="input-group">
+          <input type="text" name="barkod" id="barkodInput" class="form-control"
+            value="<%= demirbase ? demirbase.barkod : barkod %>" readonly>
+          <% if (!demirbase) { %>
+          <button type="button" class="btn btn-outline-secondary" id="yeniBarkod" title="Yeni oluştur">
+            <i class="fas fa-sync-alt"></i>
+          </button>
+          <% } %>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <label class="form-label"><%= t.equip_field_serial %></label>
+        <input type="text" name="seriNo" class="form-control"
+          value="<%= demirbase ? demirbase.seriNo : '' %>" placeholder="SN-XXXX">
+      </div>
+
+      <div class="col-md-4">
+        <label class="form-label"><%= t.equip_field_status %> <span class="text-danger">*</span></label>
+        <select name="durum" class="form-select" required>
+          <% ['aktif','bakimda','hurda','kayip','gorevde'].forEach(d => { %>
+            <option value="<%= d %>"
+              <%- (demirbase ? demirbase.durum : 'aktif') === d ? 'selected' : '' %>>
+              <%= t['equip_status_' + d] || d %>
+            </option>
+          <% }) %>
+        </select>
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label"><%= t.equip_type_title %> <span class="text-danger">*</span></label>
+        <select name="ekipmanTipi" id="ekipmanTipiSec" class="form-select" required>
+          <option value=""><%= t.select %></option>
+          <% tipler.forEach(tp => { %>
+            <option value="<%= tp._id %>"
+              <%- demirbase && String(demirbase.ekipmanTipi) === String(tp._id) ? 'selected' :
+                  !demirbase && seciliTip && String(seciliTip) === String(tp._id) ? 'selected' : '' %>>
+              <%= tp.anaKategori ? tp.anaKategori.ad + ' / ' : '' %><%= tp.altKategori %>
+              <% if (tp.tipNotu) { %> — <%= tp.tipNotu %><% } %>
+            </option>
+          <% }) %>
+        </select>
+      </div>
+
+      <div class="col-md-3">
+        <label class="form-label"><%= t.equip_field_brand %></label>
+        <input type="text" name="marka" class="form-control"
+          value="<%= demirbase ? demirbase.marka : '' %>" placeholder="Petzl">
+      </div>
+
+      <div class="col-md-3">
+        <label class="form-label"><%= t.equip_field_model %></label>
+        <input type="text" name="model" class="form-control"
+          value="<%= demirbase ? demirbase.model : '' %>" placeholder="Vertex Vent">
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Konum ve Organizasyon -->
+  <div class="card shadow-sm mb-3">
+    <div class="card-header fw-semibold"><%= t.equip_section_location %></div>
+    <div class="card-body row g-3">
+
+      <div class="col-md-4">
+        <label class="form-label"><%= t.equip_field_org %> <span class="text-danger">*</span></label>
+        <select name="orgId" class="form-select" required>
+          <option value=""><%= t.select %></option>
+          <% orglar.forEach(o => { %>
+            <option value="<%= o._id %>"
+              <%- demirbase && String(demirbase.orgId) === String(o._id) ? 'selected' : '' %>>
+              <%= o.ad %>
+            </option>
+          <% }) %>
+        </select>
+      </div>
+
+      <div class="col-md-4">
+        <label class="form-label"><%= t.equip_field_location_type %></label>
+        <select name="konumTip" class="form-select">
+          <option value="depo" <%- !demirbase || demirbase.konumTip === 'depo' ? 'selected' : '' %>><%= t.equip_location_depo %></option>
+          <option value="grup" <%- demirbase && demirbase.konumTip === 'grup' ? 'selected' : '' %>><%= t.equip_location_grup %></option>
+        </select>
+      </div>
+
+      <div class="col-md-4">
+        <label class="form-label"><%= t.equip_field_mel %></label>
+        <div class="form-check mt-2">
+          <input type="checkbox" name="melUygun" value="1" class="form-check-input"
+            id="melUygun" <%- demirbase && demirbase.melUygun ? 'checked' : (!demirbase ? 'checked' : '') %>>
+          <label class="form-check-label" for="melUygun"><%= t.equip_field_mel_label %></label>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Satın Alım ve Fiyat -->
+  <div class="card shadow-sm mb-3">
+    <div class="card-header fw-semibold"><%= t.equip_section_purchase %></div>
+    <div class="card-body row g-3">
+
+      <div class="col-md-3">
+        <label class="form-label"><%= t.equip_field_purchase_date %></label>
+        <input type="date" name="satinaAlimTarihi" class="form-control"
+          value="<%= demirbase && demirbase.satinaAlimTarihi ? demirbase.satinaAlimTarihi.toISOString().substring(0,10) : '' %>">
+      </div>
+
+      <div class="col-md-3">
+        <label class="form-label"><%= t.equip_field_warranty %></label>
+        <input type="date" name="garantiBitis" class="form-control"
+          value="<%= demirbase && demirbase.garantiBitis ? demirbase.garantiBitis.toISOString().substring(0,10) : '' %>">
+      </div>
+
+      <div class="col-md-3">
+        <label class="form-label"><%= t.equip_field_price %></label>
+        <div class="input-group">
+          <input type="number" name="fiyat[tutar]" class="form-control" step="0.01" min="0"
+            value="<%= demirbase && demirbase.fiyat ? demirbase.fiyat.tutar : '' %>">
+          <select name="fiyat[birim]" class="form-select" style="max-width:80px">
+            <% ['TRY','EUR','USD'].forEach(b => { %>
+              <option value="<%= b %>" <%- demirbase && demirbase.fiyat && demirbase.fiyat.birim === b ? 'selected' : b === 'TRY' ? 'selected' : '' %>><%= b %></option>
+            <% }) %>
+          </select>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <label class="form-label"><%= t.equip_field_invoice_no %></label>
+        <input type="text" name="fiyat[faturaNo]" class="form-control"
+          value="<%= demirbase && demirbase.fiyat ? demirbase.fiyat.faturaNo : '' %>">
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Bakım -->
+  <div class="card shadow-sm mb-3">
+    <div class="card-header fw-semibold"><%= t.equip_section_maintenance %></div>
+    <div class="card-body row g-3">
+
+      <div class="col-md-4">
+        <label class="form-label"><%= t.equip_field_last_maintenance %></label>
+        <input type="date" name="sonBakimTarihi" class="form-control"
+          value="<%= demirbase && demirbase.sonBakimTarihi ? demirbase.sonBakimTarihi.toISOString().substring(0,10) : '' %>">
+      </div>
+
+      <div class="col-md-4">
+        <label class="form-label"><%= t.equip_field_next_maintenance %></label>
+        <input type="date" name="sonraBakimTarihi" class="form-control"
+          value="<%= demirbase && demirbase.sonraBakimTarihi ? demirbase.sonraBakimTarihi.toISOString().substring(0,10) : '' %>">
+      </div>
+
+      <div class="col-md-4">
+        <label class="form-label"><%= t.equip_field_notes %></label>
+        <textarea name="notlar" class="form-control" rows="2"><%= demirbase ? demirbase.notlar : '' %></textarea>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Dinamik Özellikler (type'a göre AJAX ile dolar) -->
+  <div class="card shadow-sm mb-4" id="ozellikKarti">
+    <div class="card-header fw-semibold"><%= t.equip_section_props %></div>
+    <div class="card-body" id="ozellikAlanlari">
+      <% if (demirbase && demirbase.ozellikler && demirbase.ozellikler.length) { %>
+        <% demirbase.ozellikler.forEach((o, i) => { %>
+        <div class="row g-2 mb-2">
+          <div class="col-md-4">
+            <label class="form-label small"><%= o.ad %><% if (o.birim) { %> (<%= o.birim %>)<% } %></label>
+            <input type="hidden" name="ozellikAd" value="<%= o.ad %>">
+            <input type="hidden" name="ozellikBirim" value="<%= o.birim || '' %>">
+            <input type="text" name="ozellikDeger" class="form-control form-control-sm"
+              value="<%= o.deger %>">
+          </div>
+        </div>
+        <% }) %>
+      <% } else { %>
+        <p class="text-muted small mb-0" id="ozellikYok"><%= t.equip_props_none %></p>
+      <% } %>
+    </div>
+  </div>
+
+  <div class="d-flex gap-2">
+    <button type="submit" class="btn btn-primary"><%= demirbase ? t.update : t.save %></button>
+    <a href="/equipment" class="btn btn-outline-secondary"><%= t.cancel %></a>
+  </div>
+</form>
+
+<script>
+// Ekipman tipi değişince dinamik alanları AJAX'la çek
+const tipSec = document.getElementById('ekipmanTipiSec');
+const alanlar = document.getElementById('ozellikAlanlari');
+const yok     = document.getElementById('ozellikYok');
+
+<% if (!demirbase) { %>
+// Yeni barkod butonu
+document.getElementById('yeniBarkod').addEventListener('click', async () => {
+  const r = await fetch('/equipment/api/barcode');
+  const { barkod } = await r.json();
+  document.getElementById('barkodInput').value = barkod;
+});
+<% } %>
+
+tipSec.addEventListener('change', async () => {
+  const tipId = tipSec.value;
+  alanlar.innerHTML = '<p class="text-muted small"><%= t.loading %></p>';
+  if (!tipId) {
+    alanlar.innerHTML = '<p class="text-muted small mb-0"><%= t.equip_props_none %></p>';
+    return;
+  }
+  try {
+    const r   = await fetch('/equipment/api/type/' + tipId + '/schema');
+    const { ozellikSablonu } = await r.json();
+    if (!ozellikSablonu || !ozellikSablonu.length) {
+      alanlar.innerHTML = '<p class="text-muted small mb-0"><%= t.equip_props_none %></p>';
+      return;
+    }
+    alanlar.innerHTML = ozellikSablonu.map(o => `
+      <div class="row g-2 mb-2">
+        <div class="col-md-4">
+          <label class="form-label small">${o.ad}${o.birim ? ' (' + o.birim + ')' : ''}${o.zorunlu ? ' <span class="text-danger">*</span>' : ''}</label>
+          <input type="hidden" name="ozellikAd"   value="${o.ad}">
+          <input type="hidden" name="ozellikBirim" value="${o.birim || ''}">
+          ${o.tip === 'boolean'
+            ? `<select name="ozellikDeger" class="form-select form-select-sm">
+                 <option value="">—</option>
+                 <option value="evet">Evet</option>
+                 <option value="hayir">Hayır</option>
+               </select>`
+            : `<input type="${o.tip === 'number' ? 'number' : o.tip === 'date' ? 'date' : 'text'}"
+                 name="ozellikDeger" class="form-control form-control-sm"
+                 ${o.zorunlu ? 'required' : ''}>`
+          }
+        </div>
+      </div>`).join('');
+  } catch {
+    alanlar.innerHTML = '<p class="text-danger small"><%= t.retry %></p>';
+  }
+});
+
+// Sayfa açılırken seçili tip varsa schema'yı çek (yeni kayıt için)
+<% if (!demirbase && seciliTip) { %>
+tipSec.dispatchEvent(new Event('change'));
+<% } %>
+</script>
+
+<%- include('../partials/footer') %>

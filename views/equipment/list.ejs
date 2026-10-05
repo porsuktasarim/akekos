@@ -1,0 +1,114 @@
+<%- include('../partials/header', { title: t.equip_title }) %>
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4><i class="fas fa-boxes-stacked me-2"></i><%= t.equip_title %></h4>
+  <a href="/equipment/new" class="btn btn-primary btn-sm">
+    <i class="fas fa-plus me-1"></i><%= t.new_record %>
+  </a>
+</div>
+
+<% if (locals.hata && hata.length) { %><div class="alert alert-danger"><%= hata[0] %></div><% } %>
+<% if (locals.basarili && basarili.length) { %><div class="alert alert-success"><%- basarili[0] %></div><% } %>
+
+<!-- Filtre -->
+<form class="row g-2 mb-3" method="get">
+  <div class="col-auto">
+    <select name="org" class="form-select form-select-sm" onchange="this.form.submit()">
+      <option value="">— <%= t.org_title %> —</option>
+      <% orglar.forEach(o => { %>
+        <option value="<%= o._id %>" <%- filtre.org === String(o._id) ? 'selected' : '' %>><%= o.ad %></option>
+      <% }) %>
+    </select>
+  </div>
+  <div class="col-auto">
+    <select name="tip" class="form-select form-select-sm" onchange="this.form.submit()">
+      <option value="">— <%= t.equip_type_title %> —</option>
+      <% tipler.forEach(tp => { %>
+        <option value="<%= tp._id %>" <%- filtre.tip === String(tp._id) ? 'selected' : '' %>><%= tp.altKategori %></option>
+      <% }) %>
+    </select>
+  </div>
+  <div class="col-auto">
+    <select name="durum" class="form-select form-select-sm" onchange="this.form.submit()">
+      <option value="">— <%= t.equip_field_status %> —</option>
+      <% ['aktif','bakimda','hurda','kayip','gorevde'].forEach(d => { %>
+        <option value="<%= d %>" <%- filtre.durum === d ? 'selected' : '' %>><%= t['equip_status_' + d] || d %></option>
+      <% }) %>
+    </select>
+  </div>
+  <div class="col-auto">
+    <a href="/equipment" class="btn btn-outline-secondary btn-sm"><i class="fas fa-times"></i></a>
+  </div>
+</form>
+
+<div class="table-responsive">
+<table class="table table-hover align-middle">
+  <thead class="table-light">
+    <tr>
+      <th><%= t.equip_field_barcode %></th>
+      <th><%= t.equip_type_field_category %></th>
+      <th><%= t.equip_type_field_name %></th>
+      <th><%= t.equip_field_brand_model %></th>
+      <th><%= t.equip_field_status %></th>
+      <th><%= t.org_title %></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+  <% if (!demirbaslar.length) { %>
+    <tr><td colspan="7" class="text-muted text-center py-4"><%= t.no_record %></td></tr>
+  <% } %>
+  <% demirbaslar.forEach(d => { %>
+    <tr>
+      <td><code><%= d.barkod %></code></td>
+      <td class="small">
+        <% if (d.ekipmanTipi && d.ekipmanTipi.anaKategori) { %>
+          <i class="fas <%= d.ekipmanTipi.anaKategori.ikon %> me-1 text-muted"></i>
+          <%= d.ekipmanTipi.anaKategori.ad %>
+        <% } %>
+      </td>
+      <td>
+        <% if (d.ekipmanTipi) { %>
+          <%= d.ekipmanTipi.altKategori %>
+          <% if (d.ekipmanTipi.tipNotu) { %><br><small class="text-muted"><%= d.ekipmanTipi.tipNotu %></small><% } %>
+        <% } %>
+      </td>
+      <td class="small"><%= [d.marka, d.model].filter(Boolean).join(' ') || '—' %></td>
+      <td>
+        <%
+          const durumRenk = {
+            aktif: 'success', bakimda: 'warning', hurda: 'danger',
+            kayip: 'dark', gorevde: 'info'
+          };
+        %>
+        <span class="badge bg-<%= durumRenk[d.durum] || 'secondary' %>-subtle text-<%= durumRenk[d.durum] || 'secondary' %>">
+          <%= t['equip_status_' + d.durum] || d.durum %>
+        </span>
+      </td>
+      <td class="small"><%= d.orgId ? d.orgId.ad : '—' %></td>
+      <td class="text-end">
+        <a href="/equipment/<%= d._id %>" class="btn btn-sm btn-outline-secondary"><i class="fas fa-eye"></i></a>
+        <a href="/equipment/<%= d._id %>/edit" class="btn btn-sm btn-outline-primary ms-1"><%= t.edit %></a>
+      </td>
+    </tr>
+  <% }) %>
+  </tbody>
+</table>
+</div>
+
+<!-- Sayfalama -->
+<% if (toplamSayfa > 1) { %>
+<nav>
+  <ul class="pagination pagination-sm">
+    <% for (let i = 1; i <= toplamSayfa; i++) { %>
+      <li class="page-item <%- i === sayfa ? 'active' : '' %>">
+        <a class="page-link" href="?sayfa=<%= i %>&org=<%= filtre.org||'' %>&tip=<%= filtre.tip||'' %>&durum=<%= filtre.durum||'' %>">
+          <%= i %>
+        </a>
+      </li>
+    <% } %>
+  </ul>
+</nav>
+<% } %>
+<p class="text-muted small">Toplam: <%= toplam %> kayıt</p>
+
+<%- include('../partials/footer') %>
