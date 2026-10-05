@@ -2,7 +2,6 @@ require('dotenv').config();
 const express      = require('express');
 const path         = require('path');
 const session      = require('express-session');
-const MongoStore   = require('connect-mongo');
 const flash        = require('connect-flash');
 const methodOverride = require('method-override');
 
@@ -22,18 +21,14 @@ app.use(express.urlencoded({ extended: true, limit: '20mb' }));
 app.use(express.json({ limit: '20mb' }));
 app.use(methodOverride('_method'));
 
+// Session — memory store (MongoStore opsiyonel, sonra eklenecek)
 app.use(session({
   secret: process.env.SESSION_SECRET || 'akekos_dev_secret',
   resave: false,
   saveUninitialized: false,
-  store: MongoStore.create({
-    mongoUrl: process.env.MONGO_URI,
-    touchAfter: 24 * 3600,
-  }),
   cookie: {
     maxAge: 8 * 60 * 60 * 1000,
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
   },
 }));
 
@@ -49,7 +44,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Auth middleware — hardcoded superadmin/123456
+// Auth middleware
 app.use((req, res, next) => {
   const open = ['/login', '/logout', '/public', '/uploads'];
   if (open.some(p => req.path.startsWith(p))) return next();
@@ -65,13 +60,13 @@ app.use('/organizasyon', require('./routes/organizasyon'));
 
 // 404
 app.use((req, res) => {
-  res.status(404).render('404', { baslik: '404 — Sayfa Bulunamadı' });
+  res.status(404).send('<h1>404</h1><a href="/">Ana Sayfa</a>');
 });
 
 // Hata
 app.use((err, req, res, next) => {
   console.error('[Hata]', err);
-  res.status(err.status || 500).render('hata', { baslik: 'Hata', mesaj: err.message });
+  res.status(500).send('<h1>Hata</h1><pre>' + err.message + '</pre>');
 });
 
 const PORT = process.env.PORT || 3000;
