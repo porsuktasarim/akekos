@@ -10,7 +10,24 @@ const t         = require('./lang/tr');
 
 const app = express();
 
-connectDB();
+connectDB().then(async () => {
+  // İlk başlatmada seed verilerini yükle (idempotent)
+  try {
+    const seedAnaKategoriler = require('./seeds/anaKategori');
+    const Organization = require('./models/Organization');
+    const exists = await Organization.findOne({ kademe: 'bakanlik' });
+    if (!exists) {
+      await Organization.create({ ad: 'Tarım ve Orman Bakanlığı', kademe: 'bakanlik' });
+      console.log('[Seed] Bakanlık oluşturuldu.');
+    }
+    await seedAnaKategoriler();
+    const seedEkipmanTipleri = require('./seeds/ekipmanTipi');
+    await seedEkipmanTipleri();
+    console.log('[Seed] Tamamlandı.');
+  } catch (e) {
+    console.error('[Seed] Hata:', e.message);
+  }
+});
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
