@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Giriş — AKEKOS</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { background: #1a2940; min-height: 100vh; display: flex; align-items: center; }
+    .card { border: none; border-radius: 10px; box-shadow: 0 10px 40px rgba(0,0,0,.3); }
+    .brand-header { background: #1F3D7A; border-radius: 10px 10px 0 0; padding: 2rem; text-align: center; color: #fff; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-4 col-sm-8">
+      <div class="card">
+        <div class="brand-header">
+          <i class="fas fa-shield-halved fa-3x mb-2"></i>
+          <h4 class="mb-0">AKEKOS</h4>
+          <small class="opacity-75">Arama Kurtarma Ekipman Kontrol ve Operasyon Sistemi</small>
+        </div>
+        <div class="p-4">
+          <% if (locals.hata && hata.length) { %>
+            <div class="alert alert-danger"><i class="fas fa-exclamation-triangle me-2"></i><%= hata[0] %></div>
+          <% } %>
+          <form action="/login" method="POST">
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Kullanıcı Adı</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                <input type="text" name="username" class="form-control" required autofocus autocomplete="username">
+              </div>
+            </div>
+            <div class="mb-4">
+              <label class="form-label fw-semibold">Şifre</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                <input type="password" name="password" class="form-control" required autocomplete="current-password">
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">
+              <i class="fas fa-right-to-bracket me-2"></i>Giriş Yap
+            </button>
+          </form>
+        </div>
+      </div>
+      <p class="text-center text-white-50 mt-3 small">© <%= new Date().getFullYear() %> AKEKOS</p>
+    </div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

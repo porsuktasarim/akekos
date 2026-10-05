@@ -1,0 +1,20 @@
+<div id="sidebar">
+  <div class="brand">
+    <i class="fas fa-shield-halved me-2"></i>AKEKOS
+  </div>
+  <nav class="flex-grow-1 py-2">
+    <div class="nav-section">Genel</div>
+    <a href="/" class="nav-link <%= (typeof baslik !== 'undefined' && baslik === 'Dashboard') ? 'active' : '' %>">
+      <i class="fas fa-home"></i> Dashboard
+    </a>
+
+    <div class="nav-section">Yönetim</div>
+    <a href="/organizasyon" class="nav-link <%= req.path.startsWith('/organizasyon') ? 'active' : '' %>">
+      <i class="fas fa-sitemap"></i> Organizasyon
+    </a>
+  </nav>
+  <div class="p-3 border-top border-white border-opacity-10">
+    <div class="text-white-50 small mb-1"><i class="fas fa-user me-1"></i><%= user ? user.ad : '' %></div>
+    <a href="/logout" class="btn btn-sm btn-outline-light w-100"><i class="fas fa-sign-out-alt me-1"></i>Çıkış</a>
+  </div>
+</div>

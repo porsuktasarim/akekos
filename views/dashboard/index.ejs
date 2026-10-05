@@ -1,0 +1,24 @@
+<%- include('../partials/head') %>
+<%- include('../partials/sidebar') %>
+<div id="main">
+  <%- include('../partials/topbar') %>
+  <div class="content">
+    <%- include('../partials/alerts') %>
+
+    <div class="row g-3 mb-4">
+      <div class="col-md-3 col-sm-6">
+        <div class="card stat-card p-3">
+          <div class="text-muted small mb-1"><i class="fas fa-sitemap me-1"></i>Organizasyonlar</div>
+          <div class="fs-3 fw-bold"><%= istatistikler.orgSayisi %></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card p-4 text-center text-muted">
+      <i class="fas fa-shield-halved fa-3x mb-3 text-primary opacity-25"></i>
+      <h5>AKEKOS</h5>
+      <p class="mb-0">Arama Kurtarma Ekipman Kontrol ve Operasyon Sistemi</p>
+    </div>
+  </div>
+</div>
+<%- include('../partials/foot') %>

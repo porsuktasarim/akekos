@@ -1,0 +1,60 @@
+<%- include('../partials/head') %>
+<%- include('../partials/sidebar') %>
+<div id="main">
+  <%- include('../partials/topbar') %>
+  <div class="content">
+    <%- include('../partials/alerts') %>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div></div>
+      <a href="/organizasyon/yeni" class="btn btn-primary btn-sm">
+        <i class="fas fa-plus me-1"></i>Yeni Organizasyon
+      </a>
+    </div>
+
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th>Ad</th>
+              <th>Kod</th>
+              <th>Tür</th>
+              <th>İl</th>
+              <th>Durum</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (!liste.length) { %>
+              <tr><td colspan="6" class="text-center text-muted py-4">Kayıt bulunamadı.</td></tr>
+            <% } %>
+            <% liste.forEach(org => { %>
+              <tr>
+                <td><a href="/organizasyon/<%= org._id %>"><%= org.ad %></a></td>
+                <td><%= org.kod || '—' %></td>
+                <td><%= org.tur %></td>
+                <td><%= org.il || '—' %></td>
+                <td>
+                  <span class="badge <%= org.aktif ? 'badge-aktif' : 'badge-pasif' %>">
+                    <%= org.aktif ? 'Aktif' : 'Pasif' %>
+                  </span>
+                </td>
+                <td class="text-end">
+                  <a href="/organizasyon/<%= org._id %>/duzenle" class="btn btn-sm btn-outline-secondary">
+                    <i class="fas fa-pen"></i>
+                  </a>
+                  <form action="/organizasyon/<%= org._id %>?_method=DELETE" method="POST" class="d-inline"
+                        onsubmit="return confirm('Silmek istediğinizden emin misiniz?')">
+                    <button class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<%- include('../partials/foot') %>

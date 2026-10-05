@@ -1,0 +1,13 @@
+<%- include('partials/head') %>
+<%- include('partials/sidebar') %>
+<div id="main">
+  <%- include('partials/topbar') %>
+  <div class="content">
+    <div class="alert alert-danger">
+      <h5><i class="fas fa-exclamation-triangle me-2"></i>Hata</h5>
+      <pre class="mb-0"><%= mesaj %></pre>
+    </div>
+    <a href="/" class="btn btn-outline-secondary">Ana Sayfa</a>
+  </div>
+</div>
+<%- include('partials/foot') %>
