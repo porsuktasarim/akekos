@@ -24,13 +24,10 @@
         <div class="alert alert-danger py-2 small"><%= hata[0] %></div>
       <% } %>
       <form method="post" action="/login">
-        <div class="mb-3">
+        <div class="mb-4">
           <label class="form-label">Kullanıcı Adı</label>
           <input type="text" name="kullanici" class="form-control" autofocus required>
-        </div>
-        <div class="mb-4">
-          <label class="form-label">Şifre</label>
-          <input type="password" name="sifre" class="form-control" required>
+          <div class="form-text text-muted">Geliştirme aşaması — şifre yok.</div>
         </div>
         <button type="submit" class="btn btn-primary w-100">
           <i class="fas fa-sign-in-alt me-1"></i>Giriş Yap

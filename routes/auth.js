@@ -8,19 +8,17 @@ router.get('/login', (req, res) => {
   res.render('auth/login');
 });
 
-// Login POST — geçici: sabit şifre
+// Login POST — geçici: şifresiz erişim (geliştirme aşaması)
 router.post('/login', (req, res) => {
-  const { kullanici, sifre } = req.body;
-  const adminUser = process.env.ADMIN_USER || 'admin';
-  const adminPass = process.env.ADMIN_PASS || 'akekos2024';
-  if (kullanici === adminUser && sifre === adminPass) {
-    req.session.user = { ad: 'Yönetici', rol: 'admin', kullanici };
-    const returnTo = req.session.returnTo || '/';
-    delete req.session.returnTo;
-    return res.redirect(returnTo);
+  const { kullanici } = req.body;
+  if (!kullanici || !kullanici.trim()) {
+    req.flash('hata', 'Kullanıcı adı boş olamaz.');
+    return res.redirect('/login');
   }
-  req.flash('hata', 'Kullanıcı adı veya şifre hatalı.');
-  res.redirect('/login');
+  req.session.user = { ad: kullanici.trim(), rol: 'admin', kullanici: kullanici.trim() };
+  const returnTo = req.session.returnTo || '/';
+  delete req.session.returnTo;
+  res.redirect(returnTo);
 });
 
 // Logout
