@@ -41,13 +41,41 @@ router.get('/', async (req, res) => {
 // ---------- Yeni kayıt formu ----------
 router.get('/yeni', async (req, res) => {
   try {
-    const ustlar = await Org.find({ aktif: true }).sort({ kademe: 1, ad: 1 }).lean();
+    const kademeler = KADEME_LIST();
+    let seciliUst    = req.query.ust || null;
+    let seciliKademe = req.query.kademe || null;
+
+    // "Alt birim ekle" butonundan gelince: ust=ID, kademe=üstün kademesi
+    // → bir alt kademeye otomatik geç, üstü seçili getir
+    if (seciliUst && seciliKademe) {
+      const ustIdx = kademeler.indexOf(seciliKademe);
+      if (ustIdx >= 0 && ustIdx < kademeler.length - 1) {
+        seciliKademe = kademeler[ustIdx + 1]; // bir alt kademe
+      } else {
+        // Son kademe — alt birim eklenemez
+        req.flash('hata', 'Bu kademede alt birim oluşturulamaz.');
+        return res.redirect('/organizasyon/' + seciliUst);
+      }
+    }
+
+    // Seçili kademeye göre üst adayları — sadece bir üst kademeden
+    let ustlar = [];
+    if (seciliKademe) {
+      const idx = kademeler.indexOf(seciliKademe);
+      if (idx > 0) {
+        const ustKademe = kademeler[idx - 1];
+        ustlar = await Org.find({ kademe: ustKademe, aktif: true }).sort({ ad: 1 }).lean();
+      }
+    } else {
+      ustlar = await Org.find({ aktif: true }).sort({ kademe: 1, ad: 1 }).lean();
+    }
+
     res.render('organizasyon/form', {
       baslik:        'Yeni Organizasyon',
       org:           null,
       ustlar,
-      seciliUst:     req.query.ust || null,
-      seciliKademe:  req.query.kademe || null,
+      seciliUst,
+      seciliKademe,
       KADEME:        KADEME_LIST(),
       KADEME_ETIKET: KADEME_ETIKET(),
       IL_KODLARI:    IL_KODLARI(),

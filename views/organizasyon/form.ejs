@@ -30,9 +30,13 @@
 
           <!-- Üst birim -->
           <div class="col-md-6" id="ustRow">
-            <label class="form-label fw-semibold">Üst Birim</label>
-            <select name="ust" id="ustSec" class="form-select">
-              <option value="">— Yok (kök kayıt) —</option>
+            <label class="form-label fw-semibold">
+              Üst Birim
+              <% if (seciliKademe && seciliKademe !== 'bakanlik') { %><span class="text-danger">*</span><% } %>
+            </label>
+            <select name="ust" id="ustSec" class="form-select"
+              <%= (seciliKademe && seciliKademe !== 'bakanlik') ? 'required' : '' %>>
+              <option value="">— Seçin —</option>
               <% ustlar.forEach(u => { %>
                 <option value="<%= u._id %>"
                   <%= (seciliUst && seciliUst.toString() === u._id.toString()) ? 'selected' : '' %>>
@@ -49,16 +53,24 @@
                    value="<%= org ? org.ad : '' %>" placeholder="Birim adı">
           </div>
 
-          <!-- Merkez İl (AKE ve İl/Bölge için önemli) -->
+          <!-- Merkez İl -->
+          <%
+            const merkezIlZorunlu = ['il_bolge','ake','alt_birim'].includes(seciliKademe || (org && org.kademe));
+            const merkezIlSecili  = (org && org.merkezIl) || '';
+          %>
           <div class="col-md-6" id="merkezIlRow">
-            <label class="form-label fw-semibold">Merkez Adres İli</label>
-            <select name="merkezIl" class="form-select">
+            <label class="form-label fw-semibold">
+              Merkez Adres İli
+              <% if (merkezIlZorunlu) { %><span class="text-danger">*</span><% } %>
+            </label>
+            <select name="merkezIl" id="merkezIlSec" class="form-select"
+              <%= merkezIlZorunlu ? 'required' : '' %>>
               <option value="">— Seçin —</option>
               <% Object.keys(IL_KODLARI).sort().forEach(il => { %>
-                <option value="<%= il %>" <%= (org && org.merkezIl === il) ? 'selected' : '' %>><%= il %></option>
+                <option value="<%= il %>" <%= merkezIlSecili === il ? 'selected' : '' %>><%= il %></option>
               <% }) %>
             </select>
-            <small class="text-muted">AKE için slug hesaplamada kullanılır (il plaka kodu).</small>
+            <small class="text-muted">İl plaka kodunu belirler; AKE slug'ında kullanılır.</small>
           </div>
 
           <!-- Telefon -->
@@ -111,42 +123,64 @@
 <%- include('../partials/foot') %>
 
 <script>
-// Kademe seçilince üst listesini dinamik yükle
-const kademeSec = document.getElementById('kademeSec');
-const ustSec    = document.getElementById('ustSec');
+const kademeSec   = document.getElementById('kademeSec');
+const ustSec      = document.getElementById('ustSec');
+const merkezIlSec = document.getElementById('merkezIlSec');
+
+const zorunluKademeler = ['il_bolge', 'ake', 'alt_birim'];
+const oncekiUst = '<%= seciliUst || "" %>';
+
+function merkezIlGuncelle(kademe) {
+  if (!merkezIlSec) return;
+  const zorunlu = zorunluKademeler.includes(kademe);
+  merkezIlSec.required = zorunlu;
+  const label = merkezIlSec.closest('.col-md-6').querySelector('label');
+  const yildiz = label.querySelector('.zorunlu-yildiz');
+  if (zorunlu && !yildiz) {
+    const s = document.createElement('span');
+    s.className = 'text-danger zorunlu-yildiz';
+    s.textContent = ' *';
+    label.appendChild(s);
+  } else if (!zorunlu && yildiz) {
+    yildiz.remove();
+  }
+}
 
 if (kademeSec) {
   kademeSec.addEventListener('change', async function() {
     const kademe = this.value;
-    ustSec.innerHTML = '<option value="">Yükleniyor...</option>';
-    if (!kademe) {
+
+    merkezIlGuncelle(kademe);
+
+    // Bakanlık → üst birim yok
+    if (!kademe || kademe === 'bakanlik') {
       ustSec.innerHTML = '<option value="">— Yok —</option>';
+      ustSec.required  = false;
       return;
     }
+
+    ustSec.innerHTML = '<option value="">Yükleniyor...</option>';
+    ustSec.required  = true;
+
     try {
-      const res  = await fetch('/organizasyon/api/ustlar/' + kademe);
-      const list = await res.json();
-      let opts = '<option value="">— Yok (kök kayıt) —</option>';
+      const r    = await fetch('/organizasyon/api/ustlar/' + kademe);
+      const list = await r.json();
+      let opts   = '<option value="">— Seçin —</option>';
       list.forEach(u => {
         let label = u.ad;
         if (u.merkezIl) label += ' (' + u.merkezIl + ')';
         if (u.slug)     label += ' [' + u.slug + ']';
-        opts += `<option value="${u._id}">${label}</option>`;
+        const sel = oncekiUst && oncekiUst === u._id ? ' selected' : '';
+        opts += `<option value="${u._id}"${sel}>${label}</option>`;
       });
       ustSec.innerHTML = opts;
-
-      // Önceden seçili üst varsa yeniden seç
-      const oncekiUst = '<%= seciliUst %>';
-      if (oncekiUst) {
-        const opt = ustSec.querySelector(`option[value="${oncekiUst}"]`);
-        if (opt) opt.selected = true;
-      }
     } catch(e) {
-      ustSec.innerHTML = '<option value="">Hata oluştu</option>';
+      ustSec.innerHTML = '<option value="">Hata — yeniden deneyin</option>';
     }
   });
 
-  // Sayfa açılışında kademe zaten seçiliyse tetikle
-  if (kademeSec.value) kademeSec.dispatchEvent(new Event('change'));
+  // Sayfa açılışında kademe zaten seçiliyse: üst listesi sunucudan geldi,
+  // sadece required ve merkezIl durumunu güncelle
+  if (kademeSec.value) merkezIlGuncelle(kademeSec.value);
 }
 </script>

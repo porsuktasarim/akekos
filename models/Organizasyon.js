@@ -30,7 +30,7 @@ const KADEME = ['bakanlik', 'tasra', 'il_bolge', 'ake', 'alt_birim'];
 
 const KADEME_ETIKET = {
   bakanlik:  'Bakanlık',
-  tasra:     'Taşra Birimi',
+  tasra:     'Genel Müdürlük / Taşra',
   il_bolge:  'İl / Bölge',
   ake:       'AKE (Arama Kurtarma Ekibi)',
   alt_birim: 'Alt Birim',
@@ -41,9 +41,19 @@ const OrgSchema = new mongoose.Schema({
   kademe:    { type: String, enum: KADEME, required: true },
   ust:       { type: mongoose.Schema.Types.ObjectId, ref: 'Organizasyon', default: null },
 
-  // Merkez adres ili — AKE ve Alt Birim için slug hesaplamada kullanılır
-  // kademe 3 (ake) → merkezIl girilmeli; diğer kademelerde opsiyonel
-  merkezIl:  { type: String, trim: true },
+  // Merkez adres ili — il_bolge, ake, alt_birim için zorunlu
+  merkezIl:  {
+    type: String,
+    trim: true,
+    validate: {
+      validator: function(v) {
+        const zorunlu = ['il_bolge', 'ake', 'alt_birim'];
+        if (zorunlu.includes(this.kademe)) return !!v;
+        return true;
+      },
+      message: 'Merkez adres ili seçilmesi zorunludur.',
+    },
+  },
 
   // Slug: sadece AKE (kademe 3) ve Alt Birim (kademe 4) için otomatik atanır
   // Format: [il 2h][ake sira 2h][alt sira 2h]
