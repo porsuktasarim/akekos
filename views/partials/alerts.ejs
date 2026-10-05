@@ -1,0 +1,12 @@
+<% if (locals.hata && hata.length) { %>
+  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <%= hata[0] %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+<% } %>
+<% if (locals.basarili && basarili.length) { %>
+  <div class="alert alert-success alert-dismissible fade show" role="alert">
+    <%- basarili[0] %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+<% } %>
