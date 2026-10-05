@@ -1,0 +1,26 @@
+services:
+  app:
+    build: .
+    container_name: akekos-app
+    restart: unless-stopped
+    expose:
+      - "3027"
+    environment:
+      PORT: 3027
+      MONGO_URI: mongodb://mongo:27017/akekos
+      SESSION_SECRET: akekos_session_secret_degistir
+    volumes:
+      - akekos_uploads:/app/uploads
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:7
+    container_name: akekos-mongo
+    restart: unless-stopped
+    volumes:
+      - akekos_mongo_data:/data/db
+
+volumes:
+  akekos_mongo_data:
+  akekos_uploads:
