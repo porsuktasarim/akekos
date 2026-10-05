@@ -6,54 +6,23 @@
     <%- include('../partials/alerts') %>
 
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <div></div>
+      <p class="text-muted mb-0 small">Ağaç görünümü — kademe sırasıyla</p>
       <a href="/organizasyon/yeni" class="btn btn-primary btn-sm">
-        <i class="fas fa-plus me-1"></i>Yeni Organizasyon
+        <i class="fas fa-plus me-1"></i>Yeni Kayıt
       </a>
     </div>
 
-    <div class="card">
-      <div class="table-responsive">
-        <table class="table table-hover mb-0">
-          <thead>
-            <tr>
-              <th>Ad</th>
-              <th>Kod</th>
-              <th>Tür</th>
-              <th>İl</th>
-              <th>Durum</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <% if (!liste.length) { %>
-              <tr><td colspan="6" class="text-center text-muted py-4">Kayıt bulunamadı.</td></tr>
-            <% } %>
-            <% liste.forEach(org => { %>
-              <tr>
-                <td><a href="/organizasyon/<%= org._id %>"><%= org.ad %></a></td>
-                <td><%= org.kod || '—' %></td>
-                <td><%= org.tur %></td>
-                <td><%= org.il || '—' %></td>
-                <td>
-                  <span class="badge <%= org.aktif ? 'badge-aktif' : 'badge-pasif' %>">
-                    <%= org.aktif ? 'Aktif' : 'Pasif' %>
-                  </span>
-                </td>
-                <td class="text-end">
-                  <a href="/organizasyon/<%= org._id %>/duzenle" class="btn btn-sm btn-outline-secondary">
-                    <i class="fas fa-pen"></i>
-                  </a>
-                  <form action="/organizasyon/<%= org._id %>?_method=DELETE" method="POST" class="d-inline"
-                        onsubmit="return confirm('Silmek istediğinizden emin misiniz?')">
-                    <button class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
-                  </form>
-                </td>
-              </tr>
-            <% }) %>
-          </tbody>
-        </table>
-      </div>
+    <div class="card p-3">
+      <% if (!agac.length) { %>
+        <div class="text-center text-muted py-4">
+          <i class="fas fa-sitemap fa-2x mb-2 d-block opacity-25"></i>
+          Henüz kayıt yok. Önce bir Bakanlık ekleyin.
+        </div>
+      <% } else { %>
+        <ul class="org-tree list-unstyled mb-0">
+          <%- include('./partial_agac', { nodes: agac, depth: 0 }) %>
+        </ul>
+      <% } %>
     </div>
   </div>
 </div>
