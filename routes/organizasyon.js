@@ -63,6 +63,12 @@ router.post('/', async (req, res) => {
   try {
     const { ad, kademe, ust, merkezIl, adres, telefon, email, aciklama } = req.body;
 
+    // Bakanlık dışındaki kademeler için üst birim zorunlu
+    if (kademe !== 'bakanlik' && !ust) {
+      req.flash('hata', 'Üst birim seçilmesi zorunludur.');
+      return res.redirect('/organizasyon/yeni');
+    }
+
     const org = new Org({
       ad:       ad.trim(),
       kademe,
@@ -72,7 +78,7 @@ router.post('/', async (req, res) => {
     });
 
     await org.save();
-    const slugBilgi = org.slug ? ' Slug: <strong>' + org.slug + '</strong>' : '';
+    const slugBilgi = org.slug ? ` Slug: <code>${org.slug}</code>` : '';
     req.flash('basarili', `"${org.ad}" başarıyla oluşturuldu.${slugBilgi}`);
     res.redirect('/organizasyon');
   } catch (err) {
@@ -151,20 +157,37 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// ---------- Aktif / Pasif ----------
+// ---------- Aktif / Pasif (cascade) ----------
 router.post('/:id/aktif', async (req, res) => {
   try {
     const org = await Org.findById(req.params.id);
     if (!org) { req.flash('hata', 'Kayıt bulunamadı.'); return res.redirect('/organizasyon'); }
-    org.aktif = !org.aktif;
+
+    const yeniDurum = !org.aktif;
+    org.aktif = yeniDurum;
     await org.save();
-    req.flash('basarili', `"${org.ad}" ${org.aktif ? 'aktif' : 'pasif'} yapıldı.`);
+
+    // Pasife alınırsa tüm alt birimleri de pasife al (cascade)
+    if (!yeniDurum) {
+      await cascadePasif(org._id);
+    }
+
+    req.flash('basarili', `"${org.ad}" ${yeniDurum ? 'aktif' : 'pasif'} yapıldı.`);
     res.redirect('/organizasyon/' + org._id);
   } catch (err) {
     req.flash('hata', err.message);
     res.redirect('/organizasyon');
   }
 });
+
+async function cascadePasif(ustId) {
+  const altlar = await Org.find({ ust: ustId, aktif: true });
+  for (const alt of altlar) {
+    alt.aktif = false;
+    await alt.save();
+    await cascadePasif(alt._id); // derine in
+  }
+}
 
 // ---------- Sil ----------
 router.delete('/:id', async (req, res) => {
