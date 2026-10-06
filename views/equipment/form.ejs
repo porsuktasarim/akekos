@@ -18,16 +18,57 @@
     <div class="card-header fw-semibold"><%= t.equip_section_basic %></div>
     <div class="card-body row g-3">
 
+      <!-- Barkod + QR -->
       <div class="col-md-4">
         <label class="form-label"><%= t.equip_field_barcode %></label>
         <div class="input-group">
-          <input type="text" name="barkod" id="barkodInput" class="form-control"
+          <input type="text" name="barkod" id="barkodInput" class="form-control font-monospace"
             value="<%= demirbase ? demirbase.barkod : barkod %>" readonly>
+          <button type="button" class="btn btn-outline-secondary" id="kopyalaBarkod" title="Kopyala">
+            <i class="fas fa-copy"></i>
+          </button>
           <% if (!demirbase) { %>
           <button type="button" class="btn btn-outline-secondary" id="yeniBarkod" title="Yeni oluştur">
             <i class="fas fa-sync-alt"></i>
           </button>
           <% } %>
+          <button type="button" class="btn btn-outline-secondary" id="qrGoster" title="QR Kod">
+            <i class="fas fa-qrcode"></i>
+          </button>
+        </div>
+        <!-- QR modal tetikleyici — panel -->
+        <div id="qrPanel" class="mt-2 text-center d-none">
+          <canvas id="qrCanvas"></canvas>
+          <div class="mt-1">
+            <button type="button" class="btn btn-sm btn-outline-primary" id="qrIndir">
+              <i class="fas fa-download me-1"></i>İndir
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- NFC ve RFID -->
+      <div class="col-md-4">
+        <label class="form-label">NFC ID</label>
+        <div class="input-group">
+          <span class="input-group-text text-muted"><i class="fas fa-wifi"></i></span>
+          <input type="text" name="nfcId" id="nfcIdInput" class="form-control font-monospace"
+            value="<%= demirbase ? demirbase.nfcId : '' %>" placeholder="04:AB:CD:EF:…">
+          <button type="button" class="btn btn-outline-secondary kopyala-btn" data-hedef="nfcIdInput" title="Kopyala">
+            <i class="fas fa-copy"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <label class="form-label">RFID / EPC</label>
+        <div class="input-group">
+          <span class="input-group-text text-muted"><i class="fas fa-tag"></i></span>
+          <input type="text" name="rfidEpc" id="rfidEpcInput" class="form-control font-monospace"
+            value="<%= demirbase ? demirbase.rfidEpc : '' %>" placeholder="E2000017…">
+          <button type="button" class="btn btn-outline-secondary kopyala-btn" data-hedef="rfidEpcInput" title="Kopyala">
+            <i class="fas fa-copy"></i>
+          </button>
         </div>
       </div>
 
@@ -115,11 +156,11 @@
       </div>
 
       <div class="col-md-4">
-        <label class="form-label"><%= t.equip_field_mel %></label>
+        <label class="form-label"><%= t.equip_field_insarag %></label>
         <div class="form-check mt-2">
-          <input type="checkbox" name="melUygun" value="1" class="form-check-input"
-            id="melUygun" <%- demirbase && demirbase.melUygun ? 'checked' : (!demirbase ? 'checked' : '') %>>
-          <label class="form-check-label" for="melUygun"><%= t.equip_field_mel_label %></label>
+          <input type="checkbox" name="insaragListesinde" value="1" class="form-check-input"
+            id="insaragListesinde" <%- demirbase && demirbase.insaragListesinde ? 'checked' : '' %>>
+          <label class="form-check-label" for="insaragListesinde"><%= t.equip_field_insarag_label %></label>
         </div>
       </div>
 
@@ -274,6 +315,65 @@ tipSec.addEventListener('change', async () => {
 <% if (!demirbase && seciliTip) { %>
 tipSec.dispatchEvent(new Event('change'));
 <% } %>
+
+// ── Barkod kopyala ──────────────────────────────────────────────────────────
+document.getElementById('kopyalaBarkod').addEventListener('click', () => {
+  const val = document.getElementById('barkodInput').value;
+  navigator.clipboard.writeText(val).then(() => {
+    const btn = document.getElementById('kopyalaBarkod');
+    btn.innerHTML = '<i class="fas fa-check"></i>';
+    setTimeout(() => btn.innerHTML = '<i class="fas fa-copy"></i>', 1500);
+  });
+});
+
+// ── NFC / RFID kopyala ──────────────────────────────────────────────────────
+document.querySelectorAll('.kopyala-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const hedef = document.getElementById(btn.dataset.hedef);
+    if (!hedef || !hedef.value) return;
+    navigator.clipboard.writeText(hedef.value).then(() => {
+      btn.innerHTML = '<i class="fas fa-check"></i>';
+      setTimeout(() => btn.innerHTML = '<i class="fas fa-copy"></i>', 1500);
+    });
+  });
+});
+
+// ── QR Kod (qrcode.js CDN) ──────────────────────────────────────────────────
+(function loadQR() {
+  const script = document.createElement('script');
+  script.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+  script.onload = () => {
+    const panel  = document.getElementById('qrPanel');
+    const canvas = document.getElementById('qrCanvas');
+    let qrObj    = null;
+
+    document.getElementById('qrGoster').addEventListener('click', () => {
+      const barkod = document.getElementById('barkodInput').value;
+      if (!barkod) return;
+      panel.classList.toggle('d-none');
+      if (!panel.classList.contains('d-none')) {
+        canvas.innerHTML = '';
+        qrObj = new QRCode(canvas, {
+          text: barkod,
+          width: 160, height: 160,
+          colorDark: '#000000', colorLight: '#ffffff',
+          correctLevel: QRCode.CorrectLevel.M,
+        });
+      }
+    });
+
+    document.getElementById('qrIndir').addEventListener('click', () => {
+      const img = canvas.querySelector('img') || canvas.querySelector('canvas');
+      if (!img) return;
+      const src  = img.src || img.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.href     = src;
+      link.download = (document.getElementById('barkodInput').value || 'qr') + '.png';
+      link.click();
+    });
+  };
+  document.head.appendChild(script);
+})();
 </script>
 
 <%- include('../partials/footer') %>

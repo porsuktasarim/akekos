@@ -49,8 +49,8 @@ const DemirbaseSchema = new mongoose.Schema({
   // Hangi organizasyona ait olduğu (hızlı filtreleme için)
   orgId:    { type: mongoose.Schema.Types.ObjectId, ref: 'Organization', required: true },
 
-  // MEL
-  melUygun: { type: Boolean, default: true },
+  // INSARAG listesinde yer alıyor mu
+  insaragListesinde: { type: Boolean, default: false },
 
   // Dinamik özellikler
   ozellikler: [OzellikSchema],

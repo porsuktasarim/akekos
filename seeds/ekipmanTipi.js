@@ -704,6 +704,31 @@ const TIPLER = [
 ];
 
 async function seedEkipmanTipleri() {
+  // ── Migration: melEtiketi → slug (eski kayıtlar için tek seferlik) ──────────
+  try {
+    const { db } = require('mongoose').connection;
+    const col = db.collection('ekipmantipis');
+    await col.updateMany(
+      { $and: [{ melEtiketi: { $exists: true, $ne: '' } }, { $or: [{ slug: { $exists: false } }, { slug: '' }] }] },
+      [{ $set: { slug: '$melEtiketi' } }]
+    );
+    const all = await col.find({}, { projection: { slug: 1, createdAt: 1 } }).sort({ createdAt: 1 }).toArray();
+    const seen = new Set();
+    const dupIds = [];
+    for (const doc of all) {
+      if (!doc.slug) continue;
+      if (seen.has(doc.slug)) dupIds.push(doc._id);
+      else seen.add(doc.slug);
+    }
+    if (dupIds.length) {
+      await col.deleteMany({ _id: { $in: dupIds } });
+      console.log(`[Seed] Migration: ${dupIds.length} duplicate EkipmanTipi silindi.`);
+    }
+  } catch (e) {
+    console.warn('[Seed] Migration uyarısı:', e.message);
+  }
+  // ────────────────────────────────────────────────────────────────────────────
+
   // AnaKategori kodlarını bir kere çek
   const kategoriler = await AnaKategori.find({}, 'kod _id').lean();
   const katMap = {};
