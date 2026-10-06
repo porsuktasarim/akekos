@@ -236,7 +236,7 @@ router.post('/', async (req, res) => {
   try {
     const {
       barkod, nfcId, rfidEpc, ekipmanTipi, seriNo, marka, model,
-      durum, konumTip, orgId, insaragListesinde, notlar,
+      durum, konumTip, orgId, uluslararasiListede, notlar,
       garantiBitis, satinaAlimTarihi,
       ozellikAd, ozellikDeger, ozellikBirim,
     } = req.body;
@@ -265,7 +265,7 @@ router.post('/', async (req, res) => {
       barkod: barkod.trim(), nfcId: nfcId||'', rfidEpc: rfidEpc||'',
       ekipmanTipi, seriNo: seriNo||'', marka: marka||'', model: model||'',
       durum: durum||'aktif', konumTip: konumTip||'depo', orgId,
-      insaragListesinde: insaragListesinde !== '0',
+      uluslararasiListede: uluslararasiListede !== '0',
       notlar: notlar||'', ozellikler,
       garantiBitis:     garantiBitis     ? new Date(garantiBitis)     : null,
       satinaAlimTarihi: satinaAlimTarihi ? new Date(satinaAlimTarihi) : null,
@@ -316,7 +316,7 @@ router.put('/:id', async (req, res) => {
   try {
     const {
       nfcId, rfidEpc, ekipmanTipi, seriNo, marka, model,
-      durum, konumTip, orgId, insaragListesinde, notlar,
+      durum, konumTip, orgId, uluslararasiListede, notlar,
       garantiBitis, satinaAlimTarihi,
       ozellikAd, ozellikDeger, ozellikBirim,
     } = req.body;
@@ -345,7 +345,7 @@ router.put('/:id', async (req, res) => {
       nfcId: nfcId||'', rfidEpc: rfidEpc||'',
       ekipmanTipi, seriNo: seriNo||'', marka: marka||'', model: model||'',
       durum: durum||'aktif', konumTip: konumTip||'depo', orgId,
-      insaragListesinde: insaragListesinde !== '0',
+      uluslararasiListede: uluslararasiListede !== '0',
       notlar: notlar||'', ozellikler,
       garantiBitis:     garantiBitis     ? new Date(garantiBitis)     : null,
       satinaAlimTarihi: satinaAlimTarihi ? new Date(satinaAlimTarihi) : null,
