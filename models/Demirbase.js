@@ -49,8 +49,8 @@ const DemirbaseSchema = new mongoose.Schema({
   // Hangi organizasyona ait olduğu (hızlı filtreleme için)
   orgId:    { type: mongoose.Schema.Types.ObjectId, ref: 'Organization', required: true },
 
-  // Uluslararası standart (INSARAG IEC/R) listesinde yer alıyor mu
-  uluslararasiListede: { type: Boolean, default: false },
+  // INSARAG IEC/R listesinde yer alıyor mu
+  insaragList: { type: Boolean, default: false },
 
   // Dinamik özellikler
   ozellikler: [OzellikSchema],
